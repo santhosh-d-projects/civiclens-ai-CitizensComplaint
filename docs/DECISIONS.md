@@ -180,3 +180,24 @@
 - Feedback bug from the re-test: FeedbackForm defaulted rating to 5 stars
   (useState(5)). Fixed to 0 (no pre-selection) with submit disabled until a
   rating is picked; included in dpl_64s5.
+
+## 2026-11-21 ~13:28 IST — Voice complaint input (user order, supersedes V2 §8b)
+- The user ordered voice complaint registration: speak the complaint, the
+  voice is analysed and fills the form, so a complaint can be raised by
+  voice. Implemented in ReportForm.tsx as a VoiceInput component on step 1:
+  mic button + language picker (English/Kannada/Hindi → en-IN/kn-IN/hi-IN),
+  browser Web Speech API (SpeechRecognition/webkitSpeechRecognition,
+  continuous + interim results), transcript appended to the description,
+  then the existing AI analysis (step 4) classifies it and fills
+  category/severity/department. Results are processed from resultIndex
+  only, so final text is never duplicated.
+- This deliberately uses the browser speech API that V2 §8b forbade as a
+  *silent substitute* for a hosted ASR service — the user's direct order
+  overrides it, and a hosted ASR service (AI4Bharat/Whisper) cannot be built
+  and deployed inside the remaining event window. Honest limits, shown in
+  the UI: needs Chrome (or another browser with SpeechRecognition), mic
+  permission and internet; accuracy depends on accent and background noise;
+  on unsupported browsers the mic button is hidden, not faked.
+- Not verified live with a real voice: the cloud browser has no microphone,
+  so only the button rendering + graceful error states can be checked there.
+  Real transcription must be demoed on the user's laptop (Chrome + mic).

@@ -34,6 +34,165 @@ const STEPS = [
   "Review & submit",
 ];
 
+// Minimal Web Speech API types (not in this project's TS DOM lib).
+type SpeechRecognitionInstance = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((e: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null;
+  onerror: ((e: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+
+const VOICE_LANGS = [
+  { code: "en-IN", label: "English" },
+  { code: "kn-IN", label: "ಕನ್ನಡ" },
+  { code: "hi-IN", label: "हिन्दी" },
+] as const;
+
+/** Voice complaint input (user order 2026-11-21 13:28 IST).
+ *  Speak the complaint → the browser transcribes it into the description
+ *  field → the existing AI analysis (step 4) classifies it and fills the
+ *  category/severity/department. This uses the browser's built-in speech
+ *  recognition (Chrome, mic permission, internet) because a hosted ASR
+ *  service cannot be built and deployed inside the event window — see
+ *  docs/DECISIONS.md. On browsers without it the mic button is hidden. */
+function VoiceInput({
+  onTranscript,
+}: {
+  onTranscript: (text: string) => void;
+}) {
+  const [supported] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+  );
+  const [listening, setListening] = useState(false);
+  const [interim, setInterim] = useState("");
+  const [lang, setLang] = useState<string>("en-IN");
+  const [error, setError] = useState("");
+  const recRef = useRef<SpeechRecognitionInstance | null>(null);
+  const finalRef = useRef("");
+
+  function start() {
+    const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Ctor) return;
+    setError("");
+    setInterim("");
+    finalRef.current = "";
+    const rec = new Ctor();
+    rec.lang = lang;
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.onresult = (e) => {
+      // resultIndex = first changed result; earlier results were already
+      // consumed, so only process from there to avoid duplicating text.
+      let interimText = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) finalRef.current += r[0].transcript;
+        else interimText += r[0].transcript;
+      }
+      setInterim(interimText);
+    };
+    rec.onerror = (e) => {
+      setListening(false);
+      setError(
+        e.error === "not-allowed"
+          ? "Microphone access was blocked. Allow the microphone and try again."
+          : e.error === "no-speech"
+            ? "No speech was heard. Try again, a little closer to the microphone."
+            : "Voice input could not start in this browser. You can type the complaint instead.",
+      );
+    };
+    rec.onend = () => {
+      setListening(false);
+      setInterim("");
+      const text = finalRef.current.trim();
+      if (text) onTranscript(text);
+    };
+    recRef.current = rec;
+    try {
+      rec.start();
+      setListening(true);
+    } catch {
+      setError("Voice input could not start in this browser.");
+    }
+  }
+
+  function stop() {
+    recRef.current?.stop();
+  }
+
+  // Stop listening if the component unmounts mid-dictation.
+  useEffect(() => {
+    return () => recRef.current?.stop();
+  }, []);
+
+  if (!supported) return null;
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          aria-label="Voice language"
+          className={`${inputClass} w-auto py-2 text-sm`}
+          data-testid="report-voice-lang"
+        >
+          {VOICE_LANGS.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+        {!listening ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={start}
+            data-testid="report-voice-start"
+          >
+            🎙 Speak your complaint
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="danger"
+            onClick={stop}
+            data-testid="report-voice-stop"
+          >
+            ■ Stop listening
+          </Button>
+        )}
+        {listening && (
+          <p className="text-sm font-semibold text-low" data-testid="report-voice-status" role="status">
+            Listening… speak now{interim ? ` — “${interim}”` : ""}
+          </p>
+        )}
+      </div>
+      {error && (
+        <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+          {error}
+        </p>
+      )}
+      <p className="text-xs leading-5 text-slate-faint">
+        Your speech is transcribed into the description below — then the AI
+        reads it and suggests the category, severity and department. Works in
+        Chrome with microphone access.
+      </p>
+    </div>
+  );
+}
+
 export default function ReportForm({
   wards,
   categories,
@@ -346,9 +505,16 @@ export default function ReportForm({
           </Field>
           <Field
             label="Describe the issue"
-            hint="At least 10 characters. English, Kannada or Hindi — write it the way you would say it."
+            hint="At least 10 characters. English, Kannada or Hindi — write it the way you would say it, or speak it and we will type it for you."
             error={description && description.trim().length < 10 ? "Please describe the issue in at least 10 characters." : undefined}
           >
+            <VoiceInput
+              onTranscript={(text) =>
+                setDescription((prev) =>
+                  prev.trim() ? `${prev.trim()} ${text}` : text,
+                )
+              }
+            />
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
