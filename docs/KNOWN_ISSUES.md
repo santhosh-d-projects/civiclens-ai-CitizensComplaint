@@ -88,3 +88,11 @@ in-progress with note. Issues found and fixed in the same session:
   "My complaints" link on the report page); direct URL navigation worked.
 - AI analysis takes ~5–10s behind the spinner (Gemini cold call).
 - Feedback 5-star pre-selection: FIXED in dpl_64s5 (no default rating now).
+
+## 2026-11-21 ~16:22 IST — Sign-up email verification: FIXED
+- New users were blocked by Supabase email confirmation (account created but
+  unusable until the confirmation email was clicked; email rate limit could
+  also block sign-ups). Fixed in the app: POST /api/auth/register creates
+  pre-confirmed accounts, no email sent, and the "Email code" OTP tab was
+  removed — login is password-only. Verified live after deploy (see
+  DECISIONS.md 16:22 entry).

@@ -235,3 +235,51 @@
   - Verified: tsc 0 errors, vitest 48/48 (5 new ward tests), build passes.
   - Not verified live end to end: the cloud browser has no mic, so the
     spoken flow itself still needs a real-mic test on the user's laptop.
+
+## 2026-11-21 ~13:57 IST — Full browser sweep: session contamination + verified findings
+- Three parallel browser tasks (citizen/officer/admin) SHARE ONE browser
+  session: their sign-ins overwrote each other. Proof from the DB: the
+  citizen task's ticket CS-1040 was created with citizen_id = officer+water,
+  and CS-1041 with citizen_id = the admin. That explains every alarming
+  failure in the sweep: the "duplicate not blocked" (two submissions ran as
+  two different users, so the per-citizen guard correctly did not match),
+  feedback "Complaint not found" (feedback route requires
+  citizen_id = session user; CS-1035 belongs to citizen1), the dashboard
+  flipping identities, and the admin API calls rejected as "not admin".
+  Lesson: never run role tests in parallel in this browser — sequential
+  only. The sweep's citizen/admin failures on those items are INVALID.
+- Duplicate guard RE-VERIFIED deterministically via SQL after the sweep:
+  re-submitting CS-1040's exact text as its actual creator raises
+  DUPLICATE_COMPLAINT:CS-1040:9db74cef-29f0-4c84-8ffb-88672fc21cfd. Guard
+  works; the browser FAIL was contamination.
+- Register: first `.test` sign-up attempt failed with "Email address ...
+  is invalid" (Supabase Auth rejects the .test domain); later attempts hit
+  "email rate limit exceeded" (Supabase per-hour email rate limit — also
+  confirmed by direct API calls, which now return 429 for ANY address).
+  Video sign-up email changed to videocitizen.complaintsathi@gmail.com in
+  the workflow doc; do not retry sign-up repeatedly in the hour before
+  recording or the rate limit will block the take.
+- Genuine minor issue from the sweep (already known): Home / My complaints
+  links intermittently do nothing on the first click (second click works).
+
+## 2026-11-21 ~16:22 IST — Email verification removed from sign-up (user order)
+- Symptom: new users could not be created/used. Diagnosis (direct API test
+  16:22 IST): `supabase.auth.signUp` returned a user with
+  `confirmation_sent_at` set and `email_verified: false` — Supabase email
+  confirmation is ON, so the account exists but cannot sign in until the
+  confirmation email is clicked. The 13:57 IST email rate limit
+  (429 over_email_send_rate_limit) was a second failure mode of the same
+  design: every sign-up sends an email.
+- The Supabase dashboard setting (mailer_autoconfirm) could NOT be changed:
+  this project's Management API credential lacks the auth_config_read/write
+  scopes (GET /v1/projects/{ref}/config/auth → 403, same as api-keys).
+- Fix in the app instead: new server route POST /api/auth/register (zod,
+  5/hr/IP rate limit) creates the user via the service-role admin API with
+  `email_confirm: true` — NO confirmation email is ever sent, so the rate
+  limit cannot trip either. LoginForm sign-up now calls that route, then
+  signs in with the same password. The "Email code" OTP tab and all
+  signInWithOtp/verifyOtp code were removed from LoginForm.tsx — login is
+  password-only. Verified: tsc 0 errors, vitest 48/48, build passed.
+- Trade-off, stated plainly: anyone can now register with any email address
+  without proving they own it. Fine for this event build; a production
+  portal should turn email confirmation back on.
