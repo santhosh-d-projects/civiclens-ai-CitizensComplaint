@@ -14,6 +14,7 @@ import {
   loadTickets,
   saveTickets,
   nextTicketId,
+  SEED_TICKETS,
   type Ticket,
 } from "@/lib/store";
 
@@ -47,8 +48,21 @@ const STATUS_STYLE: Record<Status, string> = {
   Resolved: "bg-emerald-50 text-emerald-700 ring-emerald-200",
 };
 
-function timeAgo(iso: string): string {
-  const mins = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+// Pure relative-time helper: `now` comes from state set after mount, so
+// prerendering never evaluates Date.now() (Next 16 blocks it in Client
+// Components). Before mount, show a static IST timestamp instead.
+function timeAgo(iso: string, now: number | null): string {
+  if (now === null) {
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Kolkata",
+    }).format(new Date(iso));
+  }
+  const mins = Math.max(1, Math.floor((now - new Date(iso).getTime()) / 60000));
   if (mins < 60) return `${mins}m ago`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h ago`;
@@ -56,7 +70,9 @@ function timeAgo(iso: string): string {
 }
 
 export default function Home() {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  // Seed tickets render on the server too, so the dashboard is never
+  // empty on first paint; localStorage (if any) replaces them after mount.
+  const [tickets, setTickets] = useState<Ticket[]>(SEED_TICKETS);
   const [text, setText] = useState("");
   const [location, setLocation] = useState("");
   const [reporter, setReporter] = useState("");
@@ -70,8 +86,14 @@ export default function Home() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // `now` ticks after mount so "x min ago" stays fresh without blocking prerender.
+  const [now, setNow] = useState<number | null>(null);
+
   useEffect(() => {
     setTickets(loadTickets());
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
@@ -438,7 +460,7 @@ export default function Home() {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{t.text}</span>
                       <span className="mt-0.5 block text-xs text-slate-500">
-                        {t.location} · {timeAgo(t.createdAt)} · {t.reporter}
+                        {t.location} · {timeAgo(t.createdAt, now)} · {t.reporter}
                       </span>
                     </span>
                     <span
