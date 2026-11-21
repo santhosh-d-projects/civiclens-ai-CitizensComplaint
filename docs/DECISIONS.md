@@ -53,6 +53,19 @@
 - Everything else in V2 (P0/P1/P2 order, KNOWN_ISSUES.md, Playwright as
   time allows) already matches the current build; no change needed.
 
+## 2026-11-21 ~12:20 — Citizen login: email + password primary (user decision)
+- The login flow is email id + password. New citizens register on the login
+  page with email + password + confirm password (`supabase.auth.signUp`);
+  if Supabase email confirmation is on, they confirm via the email link and
+  then sign in with the same password. Email-code OTP stays as a secondary
+  sign-in option. Firebase email verification (link-based, free on Spark,
+  50k MAU) is an OPTIONAL add-on only — it must never gate the login flow.
+  It is NOT built yet: no Firebase connector exists, and it needs a Firebase
+  project from the user (console: create project + enable the Email provider)
+  plus `firebase-admin` wiring. The current build is Supabase-only.
+- Supersedes the V2 phone-OTP plan above: the user corrected it to email
+  verification as an option, login unchanged (email + password).
+
 ## 2026-11-21 ~12:00 — Keys + admin account
 - User supplied the Supabase anon + service-role keys, the Gemini API key
   and the admin credentials in chat. All saved to `app/.env.local`

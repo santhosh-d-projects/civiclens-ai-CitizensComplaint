@@ -1,7 +1,9 @@
-// Sign in — email OTP (master prompt §4/§6). Citizens register the same
-// way; the DB trigger creates their profile as `citizen`. Officers sign in
-// with the password they set from their invite; the department guard runs
-// on every officer page and API route.
+// Sign in — email + password is the primary flow (user decision 2026-11-21
+// ~12:20 IST). Citizens register with email + password + confirm password;
+// officers sign in with the password they set from their invite; the
+// department guard runs on every officer page and API route. Email-code OTP
+// stays as a secondary sign-in option. Firebase email verification is an
+// OPTIONAL add-on (V2) and must never gate this flow.
 "use client";
 
 import { useState } from "react";
@@ -9,15 +11,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button, Field, inputClass } from "@/components/ui";
 
-
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
-  const [mode, setMode] = useState<"otp" | "password">("otp");
+  const [mode, setMode] = useState<"password" | "otp">("password");
+  const [auth, setAuth] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -67,6 +70,31 @@ export default function LoginForm() {
     else await routeByRole();
   }
 
+  async function signUp() {
+    setError("");
+    setInfo("");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    setBusy(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    // If email confirmation is on, Supabase returns no session: the citizen
+    // confirms via the email link, then signs in with the same password.
+    if (data.session) await routeByRole();
+    else setInfo("Account created. Check your email to confirm it, then sign in with your password.");
+  }
+
   async function routeByRole() {
     // Role comes from profiles (DB) via a same-origin API that uses the
     // service client — never from client-side claims.
@@ -88,21 +116,16 @@ export default function LoginForm() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Sign in to Complaint-Sathi</h1>
+        <h1 className="text-xl font-semibold">
+          {auth === "signup" ? "Create your citizen account" : "Sign in to Complaint-Sathi"}
+        </h1>
         <p className="mt-1 text-sm text-slate-muted">
-          Citizens sign in with an email code. Officers use the password set
-          from their invite.
+          {auth === "signup"
+            ? "Register with your email and a password. You will sign in with the same email and password."
+            : "Sign in with your email and password. Officers use the password set from their invite."}
         </p>
 
         <div className="mt-5 flex gap-2">
-          <Button
-            variant={mode === "otp" ? "primary" : "secondary"}
-            onClick={() => setMode("otp")}
-            data-testid="login-mode-otp"
-            className="flex-1"
-          >
-            Email code
-          </Button>
           <Button
             variant={mode === "password" ? "primary" : "secondary"}
             onClick={() => setMode("password")}
@@ -110,6 +133,14 @@ export default function LoginForm() {
             className="flex-1"
           >
             Password
+          </Button>
+          <Button
+            variant={mode === "otp" ? "primary" : "secondary"}
+            onClick={() => setMode("otp")}
+            data-testid="login-mode-otp"
+            className="flex-1"
+          >
+            Email code
           </Button>
         </div>
 
@@ -142,16 +173,30 @@ export default function LoginForm() {
           )}
 
           {mode === "password" && (
-            <Field label="Password">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
-                data-testid="login-password"
-                autoComplete="current-password"
-              />
-            </Field>
+            <>
+              <Field label="Password">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                  data-testid="login-password"
+                  autoComplete={auth === "signup" ? "new-password" : "current-password"}
+                />
+              </Field>
+              {auth === "signup" && (
+                <Field label="Confirm password">
+                  <input
+                    type="password"
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    className={inputClass}
+                    data-testid="login-confirm-password"
+                    autoComplete="new-password"
+                  />
+                </Field>
+              )}
+            </>
           )}
 
           {error && <p className="text-sm text-critical">{error}</p>}
@@ -177,7 +222,7 @@ export default function LoginForm() {
               {busy ? "Verifying…" : "Verify and sign in"}
             </Button>
           )}
-          {mode === "password" && (
+          {mode === "password" && auth === "signin" && (
             <Button
               onClick={signInPassword}
               disabled={busy || !email.includes("@") || !password}
@@ -187,7 +232,47 @@ export default function LoginForm() {
               {busy ? "Signing in…" : "Sign in"}
             </Button>
           )}
+          {mode === "password" && auth === "signup" && (
+            <Button
+              onClick={signUp}
+              disabled={busy || !email.includes("@") || !password || !confirm}
+              data-testid="login-signup"
+              className="w-full"
+            >
+              {busy ? "Creating account…" : "Create account"}
+            </Button>
+          )}
         </div>
+
+        {mode === "password" && (
+          <p className="mt-4 text-center text-sm text-slate-muted">
+            {auth === "signin" ? (
+              <>
+                New citizen?{" "}
+                <button
+                  type="button"
+                  onClick={() => setAuth("signup")}
+                  data-testid="login-goto-signup"
+                  className="font-medium text-teal underline underline-offset-2"
+                >
+                  Create an account
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setAuth("signin")}
+                  data-testid="login-goto-signin"
+                  className="font-medium text-teal underline underline-offset-2"
+                >
+                  Sign in
+                </button>
+              </>
+            )}
+          </p>
+        )}
       </div>
     </div>
   );

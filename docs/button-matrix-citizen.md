@@ -36,3 +36,11 @@ Screen | Element | Handler | API / DB effect | Success UI | Error UI | test id
 /citizen/complaints/[id] | Report it as not fixed (reopen) | shows confirm | none | confirm buttons | — | reopen-start
 /citizen/complaints/[id] | Yes, reopen | POST /api/complaints/:id/reopen | status → 'reopened' + 'reopened' event | page refreshes, status Reopened | inline error | reopen-confirm
 /citizen/complaints/[id] | Cancel (reopen) | hides confirm | none | — | — | reopen-cancel
+
+## Login (updated 2026-11-21 ~12:20 — email + password is the primary flow)
+| /login | Password tab (default) | setMode("password") | — | password form | — | login-mode-password |
+| /login | Email code tab | setMode("otp") | — | OTP form | — | login-mode-otp |
+| /login | Sign in | signInPassword() | Supabase signInWithPassword → /api/me role route | portal redirect | inline error | login-signin |
+| /login | Create an account | setAuth("signup") | — | sign-up form (email + password + confirm) | — | login-goto-signup |
+| /login | Create account (submit) | signUp() | supabase.auth.signUp; session → route, else "check your email" | portal redirect or confirm info | inline error (short/mismatch/supabase) | login-signup |
+| /login | Sign in (back link) | setAuth("signin") | — | sign-in form | — | login-goto-signin |
