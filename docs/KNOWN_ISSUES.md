@@ -96,3 +96,10 @@ in-progress with note. Issues found and fixed in the same session:
   pre-confirmed accounts, no email sent, and the "Email code" OTP tab was
   removed — login is password-only. Verified live after deploy (see
   DECISIONS.md 16:22 entry).
+
+## 2026-11-21 ~16:46 IST — Duplicate guard: FIXED (widened to near-duplicates)
+- The exact-match guard let through CS-1044/CS-1045 (same citizen, same
+  category, nearly identical wording, different wards). The guard now uses
+  trigram similarity >= 0.7 and ignores ward — verified live (both
+  re-submissions blocked naming CS-1045; a genuinely different complaint
+  still goes through).

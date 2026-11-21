@@ -283,3 +283,39 @@
 - Trade-off, stated plainly: anyone can now register with any email address
   without proving they own it. Fine for this event build; a production
   portal should turn email confirmation back on.
+
+- Deploy of the fix: GitHub commit af687ad24f96e527bec4b31e2fe244b978652553;
+  Vercel deploy dpl_CjmMi1L9DwtpfWPB1nc4xWhKBbNn READY (production alias).
+  Refs verified byte-for-byte before create_deployment; refs file now kept
+  in the workspace at vercel-file-refs.json (survives restarts — the /tmp
+  copy was wiped by a runtime restart). package-lock.json is NOT in the
+  deploy set (303 KB → 405 KB base64 exceeds the ~128 KB arg limit); npm
+  install resolves fresh, .npmrc legacy-peer-deps still applies. Only the
+  2 changed files were uploaded (register route + LoginForm); all other
+  blobs were referenced by SHA from Vercel's file store.
+- Live verification (16:40 IST): POST /api/auth/register on the live site
+  with a fresh test email → 201 created; password sign-in immediately after
+  → session returned, email_confirmed_at set. Both test users deleted
+  afterwards via the admin API. Note: the login page HTML is client-rendered
+  so the copy markers were verified functionally (register 201 + immediate
+  sign-in) rather than by string search in the HTML.
+
+## 2026-11-21 ~16:46 IST — Duplicate guard widened to near-duplicates (user report)
+- Report: the user created two complaints of the same thing and both went
+  through. Found in the DB: CS-1044 ("I am unable to walk in road", ward 4)
+  and CS-1045 ("I am unable to walk on the road", ward 5), same citizen,
+  same category (roads), 90 seconds apart. The old guard was exact-match
+  ONLY (identical text + same ward + same category), so both differences
+  let them through. A DB-wide check confirmed no pair matching the old
+  exact rule exists — the old guard never failed; it was too narrow.
+- Fix: migration 04_fuzzy_duplicate_guard.sql (applied live, no app change,
+  no redeploy — the guard lives in create_complaint). Near-duplicate rule:
+  same citizen + same category + trigram similarity >= 0.7 on the
+  normalised description, within 7 days, not closed. Ward deliberately NOT
+  part of the check. Threshold chosen from live data: the reported pair
+  scores 0.758; genuinely different complaints score 0.35–0.54.
+- Verified live: exact re-submit of CS-1045 → DUPLICATE_COMPLAINT:CS-1045;
+  reworded text in a different ward → DUPLICATE_COMPLAINT:CS-1045; a
+  genuinely different complaint (different category + text) → created
+  CS-1046, then deleted; complaint count back to 21. Both CS-1044 and
+  CS-1045 were left in place (his data — not deleted unprompted).
