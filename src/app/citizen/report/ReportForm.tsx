@@ -299,7 +299,7 @@ export default function ReportForm({
               <span
                 className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-xs font-semibold transition-all ${
                   current
-                    ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                    ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
                     : done
                       ? "bg-teal-soft text-teal"
                       : "glass text-slate-muted"

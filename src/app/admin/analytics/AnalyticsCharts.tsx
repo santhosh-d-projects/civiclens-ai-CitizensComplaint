@@ -81,7 +81,7 @@ export default function AnalyticsCharts({
                     <stop offset="100%" stopColor="#7C3AED" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(16,185,129,0.15)" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748B" }} interval={0} angle={-20} textAnchor="end" height={60} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                 <Tooltip />
@@ -119,7 +119,7 @@ export default function AnalyticsCharts({
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dayData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(16,185,129,0.15)" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748B" }} axisLine={false} tickLine={false} />
                 <Tooltip />

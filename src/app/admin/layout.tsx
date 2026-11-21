@@ -15,7 +15,7 @@ export default async function AdminLayout({
     <div className="flex min-h-screen text-navy-ink">
       <aside className="glass-dark sticky top-0 hidden h-screen w-64 shrink-0 flex-col px-4 py-6 text-white md:flex">
         <Link href="/admin" className="flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(79,70,229,0.5)]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.5)]">
             S
           </div>
           <div>

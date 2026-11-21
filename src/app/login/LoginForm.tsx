@@ -128,7 +128,7 @@ export default function LoginForm() {
       <div className="w-full max-w-md">
         <div className="glass-strong rounded-3xl p-6 sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-xl font-extrabold text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)]">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-xl font-extrabold text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)]">
               S
             </span>
             <span>

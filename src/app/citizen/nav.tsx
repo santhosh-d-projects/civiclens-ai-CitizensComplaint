@@ -24,7 +24,7 @@ export default function CitizenNav({ name }: { name: string }) {
       aria-current={pathname === href ? "page" : undefined}
       className={`rounded-full px-3.5 py-2 text-sm font-semibold transition-all ${
         pathname === href
-          ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+          ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
           : "text-slate-muted hover:bg-white/80 hover:text-navy-ink"
       }`}
     >

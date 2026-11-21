@@ -1,36 +1,36 @@
 @import "tailwindcss";
 
-/* Complaint-Sathi — Civic Glass design system (redesign 21 Nov 2026).
-   Light glassmorphism: lavender canvas, white frosted glass, indigo →
-   violet gradients, civic teal accents, midnight-navy dark surfaces.
-   Tokens reconciled from stitch_complaint_sathi_civic_redesign:
-   civic_glass_system (dark) + complaint_sathi_civic_glass_light.
-   Old token names are kept (remapped) so un-redesigned pages still render. */
+/* Complaint-Sathi — Civic Glass, GREEN edition (21 Nov 2026, user order).
+   Green palette + gradients, Vidhana Soudha hero, Jarvis-showcase motion:
+   entrance keyframes riseIn / fadeUp (cubic-bezier(0.22,1,0.36,1)) with
+   staggered delays, hover that changes colour + lifts. Tokens reconciled
+   from the Civic Glass systems; old token names kept (remapped) so every
+   page re-skins automatically. */
 @theme {
   /* Canvas + surfaces */
-  --color-canvas: #f4f5ff;
+  --color-canvas: #f2f7f2;
   --color-surface: #ffffff;
   --color-glass: rgba(255, 255, 255, 0.72);
   --color-glass-strong: rgba(255, 255, 255, 0.88);
-  --color-navy: #3730a3;
-  --color-navy-hover: #312e81;
-  --color-navy-ink: #111b45;
-  --color-midnight: #0b1326;
-  --color-midnight-soft: #131b2e;
-  --color-indigo: #4f46e5;
-  --color-indigo-deep: #3730a3;
-  --color-violet: #7c3aed;
-  --color-electric: #6366f1;
+  --color-navy: #065f46;
+  --color-navy-hover: #064e3b;
+  --color-navy-ink: #0b1f17;
+  --color-midnight: #04150e;
+  --color-midnight-soft: #0a1f16;
+  --color-indigo: #059669;
+  --color-indigo-deep: #064e3b;
+  --color-violet: #0d9488;
+  --color-electric: #10b981;
   --color-teal: #0d9488;
   --color-teal-soft: rgba(13, 148, 136, 0.12);
-  --color-cyan-soft: #67e8f9;
+  --color-cyan-soft: #6ee7b7;
   --color-blue: #2563eb;
-  --color-slate-muted: #64748b;
-  --color-slate-faint: #94a3b8;
-  --color-line: rgba(99, 102, 241, 0.18);
+  --color-slate-muted: #4b5d54;
+  --color-slate-faint: #8a9a92;
+  --color-line: rgba(5, 150, 105, 0.18);
   --color-line-strong: rgba(255, 255, 255, 0.85);
 
-  /* Status (light glass tokens) */
+  /* Status (unchanged — severity must stay recognisable) */
   --color-critical: #dc2626;
   --color-critical-bg: #fee2e2;
   --color-high: #ea580c;
@@ -49,8 +49,8 @@
 }
 
 :root {
-  --background: #f4f5ff;
-  --foreground: #111b45;
+  --background: #f2f7f2;
+  --foreground: #0b1f17;
 }
 
 html {
@@ -69,14 +69,14 @@ h1, h2, h3, .font-display {
   font-family: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
 }
 
-/* Ambient canvas: soft lavender / violet / cyan glows over the canvas.
+/* Ambient canvas: soft emerald / teal / lime glows over the canvas.
    Rendered by the fixed .ambient-bg layer in the root layout. */
 .ambient-bg {
   background:
-    radial-gradient(60rem 30rem at 85% -10%, rgba(167, 139, 250, 0.35), transparent 60%),
-    radial-gradient(50rem 28rem at -10% 20%, rgba(199, 210, 254, 0.55), transparent 60%),
-    radial-gradient(45rem 26rem at 60% 110%, rgba(186, 230, 253, 0.45), transparent 60%),
-    linear-gradient(180deg, #f4f5ff 0%, #eef2ff 100%);
+    radial-gradient(60rem 30rem at 85% -10%, rgba(16, 185, 129, 0.28), transparent 60%),
+    radial-gradient(50rem 28rem at -10% 20%, rgba(167, 243, 208, 0.55), transparent 60%),
+    radial-gradient(45rem 26rem at 60% 110%, rgba(45, 212, 191, 0.35), transparent 60%),
+    linear-gradient(180deg, #f2f7f2 0%, #e9f5ec 100%);
 }
 
 /* Frosted glass surfaces */
@@ -87,7 +87,7 @@ h1, h2, h3, .font-display {
   border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 12px 32px -16px rgba(17, 27, 69, 0.18);
+    0 12px 32px -16px rgba(11, 31, 23, 0.18);
 }
 .glass-strong {
   background: rgba(255, 255, 255, 0.88);
@@ -96,20 +96,20 @@ h1, h2, h3, .font-display {
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 20px 40px -16px rgba(17, 27, 69, 0.22);
+    0 20px 40px -16px rgba(11, 31, 23, 0.22);
 }
-/* Dark glass (sidebars, headers, midnight surfaces) */
+/* Dark glass (sidebars, headers, midnight surfaces) — deep green-black */
 .glass-dark {
-  background: rgba(11, 19, 38, 0.82);
+  background: rgba(4, 21, 14, 0.85);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.45);
 }
 
-/* Gradient text for hero / display headings */
+/* Gradient text for hero / display headings — emerald → teal */
 .text-gradient {
-  background: linear-gradient(100deg, #4f46e5 0%, #7c3aed 55%, #0d9488 110%);
+  background: linear-gradient(100deg, #059669 0%, #0d9488 55%, #34d399 110%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -119,4 +119,55 @@ h1, h2, h3, .font-display {
 .tnum {
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-feature-settings: "tnum" 1;
+}
+
+/* ---- Motion: Jarvis-showcase entrance language ---- */
+/* One orchestrated page-load moment (riseIn + fadeUp, staggered), plus
+   hover that changes colour and lifts. Respects reduced motion. */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-rise {
+  animation: riseIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-up {
+  animation: fadeUp 0.9s ease 0.95s both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.9s ease 0.1s both;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.25s; }
+.delay-3 { animation-delay: 0.45s; }
+
+/* Hover that changes colour: glass cards lift and take a green tint/border,
+   links and buttons shift to the deep green. */
+.hover-lift {
+  transition: transform 0.25s ease, background-color 0.25s ease,
+    border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  border-color: rgba(5, 150, 105, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 16px 36px -14px rgba(5, 150, 105, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise, .animate-fade-up, .animate-fade-in {
+    animation: none;
+  }
+  .hover-lift, .hover-lift:hover {
+    transform: none;
+  }
 }

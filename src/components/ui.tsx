@@ -15,7 +15,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
   const styles: Record<ButtonVariant, string> = {
     primary:
-      "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)] hover:-translate-y-px focus:ring-electric disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none",
+      "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] hover:shadow-[0_12px_28px_rgba(5,150,105,0.45)] hover:-translate-y-px focus:ring-electric disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none",
     secondary:
       "glass text-navy-ink hover:bg-white/90 focus:ring-electric disabled:text-slate-400",
     danger:
@@ -41,7 +41,7 @@ export function GlassCard({
   testId?: string;
 }) {
   return (
-    <div data-testid={testId} className={`glass rounded-3xl ${className}`}>
+    <div data-testid={testId} className={`glass hover-lift rounded-3xl ${className}`}>
       {children}
     </div>
   );
@@ -70,7 +70,7 @@ export function StatCard({
     blue: "bg-medium-bg text-medium",
   };
   return (
-    <div data-testid={testId} className="glass rounded-3xl p-5">
+    <div data-testid={testId} className="glass hover-lift rounded-3xl p-5">
       <p className="text-xs font-semibold uppercase tracking-wider text-slate-muted">
         {label}
       </p>
@@ -129,7 +129,7 @@ export function Chip({
       data-testid={testId}
       className={`min-h-[36px] rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
         active
-          ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+          ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
           : "glass text-slate-muted hover:bg-white/90 hover:text-navy-ink"
       }`}
     >

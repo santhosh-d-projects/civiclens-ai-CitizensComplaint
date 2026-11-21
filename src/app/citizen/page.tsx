@@ -42,7 +42,7 @@ export default async function CitizenHome() {
           <Link
             href="/citizen/report"
             data-testid="home-report-cta"
-            className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(5,150,105,0.45)]"
           >
             Report an issue
           </Link>
@@ -90,7 +90,7 @@ export default async function CitizenHome() {
                 <Link
                   href="/citizen/report"
                   data-testid="home-empty-report"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(5,150,105,0.45)]"
                 >
                   Report an issue
                 </Link>
@@ -153,7 +153,7 @@ export default async function CitizenHome() {
             },
           ].map((s) => (
             <li key={s.n} className="flex gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo to-violet text-sm font-bold text-white shadow-[0_6px_14px_rgba(79,70,229,0.35)]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo to-violet text-sm font-bold text-white shadow-[0_6px_14px_rgba(5,150,105,0.35)]">
                 {s.n}
               </span>
               <span>

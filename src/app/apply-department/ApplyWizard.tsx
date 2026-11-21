@@ -122,7 +122,7 @@ export default function ApplyWizard() {
           <Link
             href="/"
             data-testid="apply-done-home"
-            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px"
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-px"
           >
             Return to portal
           </Link>
@@ -139,7 +139,7 @@ export default function ApplyWizard() {
             key={s}
             className={`rounded-full px-3 py-2 text-xs font-semibold transition-all ${
               i === step
-                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
                 : i < step
                   ? "bg-teal-soft text-teal"
                   : "glass text-slate-muted"
@@ -178,7 +178,7 @@ export default function ApplyWizard() {
               <legend className="text-xs font-medium tracking-wide text-slate-muted uppercase">Categories this department would serve</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {categories.map((c) => (
-                  <button key={c.id} type="button" onClick={() => toggle(categoryIds, c.id, setCategoryIds)} data-testid={`apply-category-${c.slug}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
+                  <button key={c.id} type="button" onClick={() => toggle(categoryIds, c.id, setCategoryIds)} data-testid={`apply-category-${c.slug}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
                     {c.name}
                   </button>
                 ))}
@@ -191,7 +191,7 @@ export default function ApplyWizard() {
             <legend className="text-xs font-medium tracking-wide text-slate-muted uppercase">Wards served</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {wards.map((w) => (
-                <button key={w.id} type="button" onClick={() => toggle(wardIds, w.id, setWardIds)} data-testid={`apply-ward-${w.id}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
+                <button key={w.id} type="button" onClick={() => toggle(wardIds, w.id, setWardIds)} data-testid={`apply-ward-${w.id}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
                   {w.name} <span className="text-xs text-slate-muted">· {w.zone}</span>
                 </button>
               ))}

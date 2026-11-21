@@ -22,7 +22,7 @@ export default async function CitizenLayout({
       <header className="glass sticky top-0 z-40 border-b border-line/60">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <Link href="/citizen" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-extrabold text-white shadow-[0_8px_20px_rgba(79,70,229,0.35)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-extrabold text-white shadow-[0_8px_20px_rgba(5,150,105,0.35)]">
               S
             </span>
             <span>

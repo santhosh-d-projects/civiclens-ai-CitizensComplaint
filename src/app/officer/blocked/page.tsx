@@ -180,7 +180,7 @@ export default async function BlockedPage({
           <Link
             href="/login"
             data-testid="blocked-go-login"
-            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(5,150,105,0.45)]"
           >
             Back to sign in
           </Link>

@@ -56,7 +56,7 @@ export default function AdminCharts({
                     <stop offset="100%" stopColor="#7C3AED" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(16,185,129,0.15)" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#64748B" }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#64748B" }} axisLine={false} tickLine={false} />
                 <Tooltip />

@@ -130,7 +130,7 @@ export default function NewDepartmentForm() {
             key={s}
             className={`rounded-full px-3 py-2 text-xs font-semibold transition-all ${
               i === step
-                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
                 : i < step
                   ? "bg-teal-soft text-teal"
                   : "glass text-slate-muted"
@@ -165,7 +165,7 @@ export default function NewDepartmentForm() {
                     type="button"
                     onClick={() => toggle(categoryIds, c.id, setCategoryIds)}
                     data-testid={`new-dept-category-${c.slug}`}
-                    className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
+                    className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
                   >
                     {c.name}
                   </button>
@@ -184,7 +184,7 @@ export default function NewDepartmentForm() {
                   type="button"
                   onClick={() => toggle(wardIds, w.id, setWardIds)}
                   data-testid={`new-dept-ward-${w.id}`}
-                  className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
+                  className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
                 >
                   {w.name} <span className="text-xs text-slate-muted">· {w.zone}</span>
                 </button>

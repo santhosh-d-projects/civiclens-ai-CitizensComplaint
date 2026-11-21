@@ -42,7 +42,7 @@ export default async function OfficerLayout({
       {/* Dark glass sidebar — midnight contrast against the light canvas */}
       <aside className="glass-dark sticky top-0 hidden h-screen w-68 shrink-0 flex-col md:flex">
         <div className="flex items-center gap-3 px-5 pb-5 pt-6">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-sm font-bold text-white shadow-[0_8px_20px_rgba(79,70,229,0.45)]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-sm font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.45)]">
             CS
           </span>
           <div className="min-w-0">

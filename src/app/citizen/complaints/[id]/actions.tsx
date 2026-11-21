@@ -48,7 +48,7 @@ export function FeedbackForm({ complaintId }: { complaintId: string }) {
               data-testid={`feedback-star-${n}`}
               className={`min-h-[44px] min-w-[44px] rounded-xl border text-sm font-bold transition-all ${
                 rating === n
-                  ? "border-transparent bg-gradient-to-br from-indigo to-violet text-white shadow-[0_6px_14px_rgba(79,70,229,0.35)]"
+                  ? "border-transparent bg-gradient-to-br from-indigo to-violet text-white shadow-[0_6px_14px_rgba(5,150,105,0.35)]"
                   : "glass text-navy-ink hover:bg-white/90"
               }`}
             >

@@ -70,3 +70,13 @@ in-progress with note. Issues found and fixed in the same session:
 - Vercel deploy failed ERESOLVE (vitest vs @types/node) — fixed with
   `.npmrc` legacy-peer-deps=true; 397 KB inline payload exceeded the CLI argv
   limit — fixed with the two-stage upload_file + SHA1-reference deploy.
+
+## 2026-11-21 ~13:05 IST — Green redesign notes
+- Green Civic Glass live in the redeploy after this note (dpl pending).
+  Hero image vidhana-soudha.jpg is NOT in the GitHub repo (binary, snapshot
+  push is UTF-8-only); it is in the Vercel deployment via upload_file.
+  A GitHub-clone deploy would show a broken hero image until the file is
+  added to public/ by hand.
+- The browser re-test (task 85becc2a) ran against the indigo build; its
+  functional findings (duplicate block, resolution flow) still apply, but
+  the visual check must be redone on the green build.

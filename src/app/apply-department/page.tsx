@@ -8,7 +8,7 @@ export default function ApplyDepartmentPage() {
       <header className="glass sticky top-0 z-40 border-b border-white/60">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)]">
               S
             </div>
             <div>

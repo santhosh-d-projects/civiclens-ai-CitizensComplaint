@@ -2,6 +2,9 @@
 // portal cards, and the list of active departments (real data from Supabase
 // when the keys are configured; the section hides itself otherwise — never
 // fake data).
+// Hero background: Vidhana Soudha, Bengaluru (photo: officechai.com) —
+// blurred + dark green scrim so the white headline is always readable.
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GlassCard } from "@/components/ui";
@@ -75,7 +78,7 @@ export default async function HomePage() {
       <header className="glass sticky top-0 z-40 border-b border-white/60">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-bold text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)]">
               S
             </div>
             <div>
@@ -95,7 +98,7 @@ export default async function HomePage() {
             <Link
               href="/login"
               data-testid="nav-login"
-              className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(5,150,105,0.45)]"
             >
               Sign in
             </Link>
@@ -103,41 +106,60 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-        <section className="max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-indigo/20 bg-white/70 px-3 py-1 text-xs font-bold tracking-wide text-indigo uppercase backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal" />
-            Bengaluru · Civic Complaint Portal
-          </p>
-          <h1 className="mt-5 text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl">
-            Report a civic issue.{" "}
-            <span className="text-gradient">Track it till it&rsquo;s fixed.</span>
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-muted">
-            Potholes, water leaks, garbage, broken streetlights — describe the
-            problem in your own words. Our AI suggests the right department and
-            the urgency, <strong className="font-semibold text-navy-ink">you confirm it</strong>,
-            and the department fixes it. No queues, no follow-up calls.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/citizen/report"
-              data-testid="cta-report"
-              className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
-            >
-              Report an issue →
-            </Link>
-            <Link
-              href="/citizen/complaints"
-              data-testid="cta-track"
-              className="glass inline-flex min-h-[44px] items-center rounded-xl px-6 py-3 text-sm font-semibold text-navy-ink transition-all hover:bg-white/90"
-            >
-              Track my complaints
-            </Link>
+      <main className="mx-auto max-w-6xl px-4 pb-12 sm:pb-16">
+        {/* Hero — Vidhana Soudha photo, blurred, under a dark green scrim.
+            Text is white on the scrim, never on the bare photo. */}
+        <section className="animate-rise relative mt-6 overflow-hidden rounded-[2rem] shadow-[0_24px_60px_-20px_rgba(4,21,14,0.5)]">
+          <Image
+            src="/vidhana-soudha.jpg"
+            alt=""
+            aria-hidden
+            fill
+            priority
+            className="scale-105 object-cover blur-[2px] brightness-[0.55]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-r from-[#04150e]/90 via-[#04150e]/60 to-[#04150e]/25"
+          />
+          <div className="relative z-10 max-w-3xl px-6 py-14 sm:px-10 sm:py-20">
+            <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-bold tracking-wide text-white uppercase backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+              Bengaluru · Civic Complaint Portal
+            </p>
+            <h1 className="mt-5 text-4xl leading-[1.08] font-bold tracking-tight text-white sm:text-5xl">
+              Report a civic issue.{" "}
+              <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
+                Track it till it&rsquo;s fixed.
+              </span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-emerald-50/90">
+              Potholes, water leaks, garbage, broken streetlights — describe the
+              problem in your own words. Our AI suggests the right department and
+              the urgency,{" "}
+              <strong className="font-semibold text-white">you confirm it</strong>,
+              and the department fixes it. No queues, no follow-up calls.
+            </p>
+            <div className="animate-fade-up mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/citizen/report"
+                data-testid="cta-report"
+                className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(5,150,105,0.5)] transition-all hover:-translate-y-px hover:from-emerald-500 hover:to-teal-500 hover:shadow-[0_12px_28px_rgba(5,150,105,0.6)]"
+              >
+                Report an issue →
+              </Link>
+              <Link
+                href="/citizen/complaints"
+                data-testid="cta-track"
+                className="inline-flex min-h-[44px] items-center rounded-xl border border-white/40 bg-white/15 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:-translate-y-px hover:bg-white/25"
+              >
+                Track my complaints
+              </Link>
+            </div>
           </div>
         </section>
 
-        <section className="mt-14">
+        <section className="animate-fade-up mt-14">
           <p className="text-xs font-bold tracking-[0.14em] text-indigo uppercase">
             How it works
           </p>
@@ -147,7 +169,7 @@ export default async function HomePage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {HOW_IT_WORKS.map((s) => (
               <GlassCard key={s.n} className="p-6">
-                <p className="tnum flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-base font-bold text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]">
+                <p className="tnum flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-base font-bold text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]">
                   {s.n}
                 </p>
                 <h3 className="mt-4 text-base font-bold">{s.t}</h3>
@@ -158,7 +180,7 @@ export default async function HomePage() {
         </section>
 
         {departments.length > 0 && (
-          <section className="mt-14">
+          <section className="animate-fade-up mt-14">
             <p className="text-xs font-bold tracking-[0.14em] text-indigo uppercase">
               Live on the portal
             </p>
@@ -188,7 +210,7 @@ export default async function HomePage() {
           </section>
         )}
 
-        <section className="mt-14">
+        <section className="animate-fade-up mt-14">
           <p className="text-xs font-bold tracking-[0.14em] text-indigo uppercase">
             Portals
           </p>
@@ -217,7 +239,8 @@ export default async function HomePage() {
         <p className="mx-auto max-w-6xl px-4 py-6 text-xs leading-5 text-slate-muted">
           Complaint-Sathi · Bengaluru · Built for the Prompt to Product event,
           21 Nov 2026. Complaints are routed only to active departments that
-          cover your ward and category.
+          cover your ward and category. Hero photo: Vidhana Soudha, Bengaluru
+          (officechai.com).
         </p>
       </footer>
     </div>

@@ -28,7 +28,7 @@ export default function AdminNav({ variant }: { variant: "sidebar" | "mobile" })
             data-testid={`${n.testId}-mobile`}
             className={`min-h-[36px] rounded-full px-3 py-2 text-xs font-semibold transition-all ${
               isActive(n.href)
-                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(5,150,105,0.35)]"
                 : "glass text-navy-ink hover:bg-white/90"
             }`}
           >
@@ -49,7 +49,7 @@ export default function AdminNav({ variant }: { variant: "sidebar" | "mobile" })
           aria-current={isActive(n.href) ? "page" : undefined}
           className={`rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
             isActive(n.href)
-              ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)]"
+              ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_8px_20px_rgba(5,150,105,0.4)]"
               : "text-white/70 hover:bg-white/10 hover:text-white"
           }`}
         >

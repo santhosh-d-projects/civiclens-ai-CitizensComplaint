@@ -135,3 +135,35 @@
   the redesign makes it PROMINENT: a Resolution section with the note, the
   after-work photos, and the status timeline — so citizens can see the staff
   did the work. Verified end to end in the next smoke test.
+
+## 2026-11-21 ~13:05 IST — Green Civic Glass redesign (user order, with reference image)
+- The user sent the Participant Guide PDF + a Stitch reference screenshot and
+  ordered: use the frontend skills to design; change the palette to GREEN and
+  its gradients; copy the font-loading/animation/hover language from the
+  Jarvis showcase page I built on 15 Nov; add a Bengaluru Vidhana Soudha
+  background image (blurred) to the landing page, with all text kept visible.
+- Palette: emerald #059669 primary, teal #0D9488 secondary, #10B981 electric,
+  deep green #064E3B, midnight #04150E (deep green-black), canvas #F2F7F2.
+  All old token names remapped in globals.css, so all pages re-skin at once;
+  hardcoded indigo shadows (rgba 79,70,229 / 99,102,241) replaced project-wide
+  with emerald shadows (5,150,105 / 16,185,129). Status colours unchanged.
+- Motion (from the Jarvis showcase, ts-spaces/jarvis-showcase/index.html):
+  riseIn 0.9s cubic-bezier(0.22,1,0.36,1), fadeUp 0.9s ease, staggered
+  delays; one orchestrated page-load moment; hover-lift on GlassCard/StatCard
+  (translateY(-2px) + green border/shadow) and buttons shift to a deeper
+  green gradient on hover; prefers-reduced-motion respected.
+- Hero: Vidhana Soudha photo (officechai.com, 1024x638, downloaded to
+  app/public/vidhana-soudha.jpg, credited in the footer) as a blurred
+  (blur 2px, brightness 0.55, scale 1.05) background under a dark green
+  gradient scrim; white headline on the scrim, never on the bare photo.
+  The image is binary, so it CANNOT go through the UTF-8 snapshot push to
+  GitHub — it is deployed via the Vercel upload_file flow and documented in
+  README.md. A fresh clone from GitHub would miss the hero image (next/image
+  would 404 on it); the live Vercel deployment is the source of truth.
+- Participant Guide (Prompt_to_Product_Participant_Guide__1.pdf) read in full:
+  judging 20/20/20/20/15/5; pitch 5 min + 3 min Q&A; submissions = team
+  details, GitHub IDs, repo link, complete AI chat history, prompt log,
+  1–2 page write-up, slides PDF, 2–3 min demo video, live link (optional);
+  files named TeamName_DocumentName. The Guide contains NO submission-form
+  URL (strings found zero http links) — the form link is still outstanding
+  and must come from the coordinators.

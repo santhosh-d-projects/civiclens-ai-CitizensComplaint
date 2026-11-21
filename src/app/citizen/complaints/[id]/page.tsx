@@ -167,7 +167,7 @@ export default async function ComplaintDetailPage({
                       isReopenedStep
                         ? "bg-high text-white shadow-[0_6px_14px_rgba(234,88,12,0.35)]"
                         : isDone
-                          ? "bg-gradient-to-br from-indigo to-violet text-white shadow-[0_6px_14px_rgba(79,70,229,0.35)]"
+                          ? "bg-gradient-to-br from-indigo to-violet text-white shadow-[0_6px_14px_rgba(5,150,105,0.35)]"
                           : "bg-slate-200 text-slate-muted"
                     } ${i === stageIndex && stageIndex >= 0 && !isReopenedStep ? "ring-2 ring-indigo/30 ring-offset-2" : ""}`}
                   >
