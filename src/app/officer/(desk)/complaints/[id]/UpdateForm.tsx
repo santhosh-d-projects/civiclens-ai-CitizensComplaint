@@ -117,10 +117,13 @@ export default function UpdateForm({
       setNote("");
       setFiles([]);
       if (fileRef.current) fileRef.current.value = "";
+      // Re-fetch the server-rendered badge/timeline. Keep the form busy
+      // until the refresh has had time to land (smoke test 21 Nov: the badge
+      // still read "Submitted" until a manual reload).
       router.refresh();
+      window.setTimeout(() => setBusy(false), 1500);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Update failed.");
-    } finally {
       setBusy(false);
     }
   }

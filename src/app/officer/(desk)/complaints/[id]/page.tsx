@@ -2,6 +2,8 @@
 // URLs), timeline, AI suggestion record, and the status-update form.
 // Server component fetches with the admin client (department-scoped);
 // the form is a client component that PATCHes the API route.
+export const dynamic = "force-dynamic";
+
 import { notFound, redirect } from "next/navigation";
 import { requireActiveDepartment } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";

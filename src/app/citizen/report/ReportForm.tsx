@@ -244,10 +244,13 @@ export default function ReportForm({
       if (!res.ok || "error" in data) {
         throw new Error("error" in data ? data.error.message : "Submission failed.");
       }
+      // Keep the button busy until the ticket page unmounts this form:
+      // clearing it first makes a slow navigation look like a failed submit
+      // (smoke test 21 Nov: the ticket WAS created but the page never seemed
+      // to confirm it, so a user could submit a duplicate).
       router.push(`/citizen/complaints/${data.id}`);
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "Submission failed. Please try again.");
-    } finally {
       setSubmitting(false);
     }
   }
