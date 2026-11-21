@@ -2,7 +2,7 @@
 // password change.
 import { requireActiveDepartment } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusPill } from "@/components/ui";
+import { StatusPill, GlassCard, PageHeader } from "@/components/ui";
 import ChangePasswordForm from "./ChangePasswordForm";
 
 export default async function OfficerProfile() {
@@ -42,68 +42,94 @@ export default async function OfficerProfile() {
   const catNames = ((catRows ?? []) as { id: number; name: string }[]).map((c) => c.name);
   const o = officer as { name: string; email: string; phone: string | null } | null;
 
+  const rowClass = "flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-line/60 py-2.5 text-sm last:border-0";
+
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Department Profile</h1>
-      <p className="mt-1 text-sm text-slate-muted">
-        Read-only. Changes to your department go through the administrator.
-      </p>
+      <PageHeader
+        eyebrow="Officer Desk"
+        title="Department Profile"
+        sub="Read-only. Changes to your department go through the administrator."
+      />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-lg border border-line bg-white p-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-semibold">{d?.name ?? "Department"}</h2>
+        <GlassCard className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-base font-bold text-white">
+              {(d?.name ?? "D").charAt(0).toUpperCase()}
+            </span>
+            <h2 className="min-w-0 flex-1 text-base font-bold text-navy-ink">{d?.name ?? "Department"}</h2>
             {d && <StatusPill status={d.status} />}
           </div>
-          {d?.description && <p className="mt-2 text-sm text-slate-muted">{d.description}</p>}
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
+          {d?.description && <p className="mt-3 text-sm leading-6 text-slate-muted">{d.description}</p>}
+          <dl className="mt-4">
+            <div className={rowClass}>
               <dt className="text-slate-muted">Official email</dt>
-              <dd className="font-semibold">{d?.official_email}</dd>
+              <dd className="font-semibold text-navy-ink">{d?.official_email}</dd>
             </div>
             {d?.official_phone && (
-              <div className="flex justify-between gap-4">
+              <div className={rowClass}>
                 <dt className="text-slate-muted">Official phone</dt>
-                <dd className="font-semibold">{d.official_phone}</dd>
+                <dd className="font-semibold text-navy-ink">{d.official_phone}</dd>
               </div>
             )}
-            <div className="flex justify-between gap-4">
-              <dt className="text-slate-muted">Wards covered</dt>
-              <dd className="text-right font-semibold">{wardNames.join(", ") || "—"}</dd>
+            <div className={rowClass}>
+              <dt className="shrink-0 text-slate-muted">Wards covered</dt>
+              <dd className="flex flex-wrap justify-end gap-1.5">
+                {wardNames.length > 0 ? (
+                  wardNames.map((w) => (
+                    <span key={w} className="rounded-full bg-indigo/10 px-2.5 py-1 text-xs font-semibold text-indigo">
+                      {w}
+                    </span>
+                  ))
+                ) : (
+                  <span className="font-semibold text-navy-ink">—</span>
+                )}
+              </dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-slate-muted">Categories handled</dt>
-              <dd className="text-right font-semibold">{catNames.join(", ") || "—"}</dd>
+            <div className={rowClass}>
+              <dt className="shrink-0 text-slate-muted">Categories handled</dt>
+              <dd className="flex flex-wrap justify-end gap-1.5">
+                {catNames.length > 0 ? (
+                  catNames.map((c) => (
+                    <span key={c} className="rounded-full bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal">
+                      {c}
+                    </span>
+                  ))
+                ) : (
+                  <span className="font-semibold text-navy-ink">—</span>
+                )}
+              </dd>
             </div>
           </dl>
-        </section>
+        </GlassCard>
 
-        <section className="rounded-lg border border-line bg-white p-5">
-          <h2 className="text-base font-semibold">Your details</h2>
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
+        <GlassCard className="p-5 sm:p-6">
+          <h2 className="text-base font-bold text-navy-ink">Your details</h2>
+          <dl className="mt-4">
+            <div className={rowClass}>
               <dt className="text-slate-muted">Name</dt>
-              <dd className="font-semibold">{o?.name ?? session.profile.full_name ?? "—"}</dd>
+              <dd className="font-semibold text-navy-ink">{o?.name ?? session.profile.full_name ?? "—"}</dd>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className={rowClass}>
               <dt className="text-slate-muted">Email</dt>
-              <dd className="font-semibold">{o?.email ?? session.email}</dd>
+              <dd className="break-all font-semibold text-navy-ink">{o?.email ?? session.email}</dd>
             </div>
             {o?.phone && (
-              <div className="flex justify-between gap-4">
+              <div className={rowClass}>
                 <dt className="text-slate-muted">Phone</dt>
-                <dd className="font-semibold">{o.phone}</dd>
+                <dd className="font-semibold text-navy-ink">{o.phone}</dd>
               </div>
             )}
-            <div className="flex justify-between gap-4">
+            <div className={rowClass}>
               <dt className="text-slate-muted">Role</dt>
-              <dd className="font-semibold">Department Officer</dd>
+              <dd className="font-semibold text-navy-ink">Department Officer</dd>
             </div>
           </dl>
-          <div className="mt-5 border-t border-line pt-5">
+          <div className="mt-5 border-t border-line/60 pt-5">
             <ChangePasswordForm />
           </div>
-        </section>
+        </GlassCard>
       </div>
     </div>
   );

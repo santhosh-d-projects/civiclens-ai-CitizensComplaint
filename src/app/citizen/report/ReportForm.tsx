@@ -4,9 +4,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Field, SeverityBadge, inputClass } from "@/components/ui";
+import { Button, Field, GlassCard, SeverityBadge, inputClass } from "@/components/ui";
 import type { Category, Ward } from "@/lib/database.types";
 import type { AnalyzeResult } from "@/lib/ai/analyze";
 
@@ -59,6 +60,13 @@ export default function ReportForm({
   const [departmentId, setDepartmentId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  // Set when the server refuses an exact duplicate: the citizen is shown
+  // the existing complaint instead of getting a second ticket number.
+  const [duplicate, setDuplicate] = useState<{
+    message: string;
+    existing_ticket_no?: string;
+    existing_complaint_id?: string;
+  } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Clean up preview URLs on unmount.
@@ -208,6 +216,7 @@ export default function ReportForm({
     if (!analysis || !departmentId || wardId === "") return;
     setSubmitting(true);
     setSubmitError("");
+    setDuplicate(null);
     try {
       const finalTitle =
         title.trim() ||
@@ -240,8 +249,27 @@ export default function ReportForm({
       });
       const data = (await res.json()) as
         | { ticket_no: string; id: string }
-        | { error: { code: string; message: string } };
+        | {
+            error: {
+              code: string;
+              message: string;
+              existing_ticket_no?: string;
+              existing_complaint_id?: string;
+            };
+          };
       if (!res.ok || "error" in data) {
+        // Exact duplicate: no new ticket is created. Show the existing
+        // complaint instead of a generic failure so the citizen can track
+        // the one already filed.
+        if ("error" in data && data.error.code === "DUPLICATE_COMPLAINT") {
+          setDuplicate({
+            message: data.error.message,
+            existing_ticket_no: data.error.existing_ticket_no,
+            existing_complaint_id: data.error.existing_complaint_id,
+          });
+          setSubmitting(false);
+          return;
+        }
         throw new Error("error" in data ? data.error.message : "Submission failed.");
       }
       // Keep the button busy until the ticket page unmounts this form:
@@ -260,28 +288,48 @@ export default function ReportForm({
   const canSubmit = !!analysis && !!departmentId && !!categorySlug;
 
   return (
-    <div className="rounded-lg border border-line bg-white p-5 sm:p-6">
+    <GlassCard className="p-5 sm:p-8">
       {/* Stepper */}
-      <ol className="flex flex-wrap gap-2" data-testid="report-stepper">
-        {STEPS.map((label, i) => (
-          <li
-            key={label}
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-              step === i + 1
-                ? "bg-navy text-white"
-                : step > i + 1
-                  ? "bg-teal-soft text-teal"
-                  : "bg-slate-100 text-slate-muted"
-            }`}
-          >
-            {i + 1}. {label}
-          </li>
-        ))}
+      <ol className="flex flex-wrap items-center gap-2" data-testid="report-stepper">
+        {STEPS.map((label, i) => {
+          const done = step > i + 1;
+          const current = step === i + 1;
+          return (
+            <li key={label} className="flex items-center gap-2">
+              <span
+                className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-3 text-xs font-semibold transition-all ${
+                  current
+                    ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                    : done
+                      ? "bg-teal-soft text-teal"
+                      : "glass text-slate-muted"
+                }`}
+                aria-current={current ? "step" : undefined}
+              >
+                <span
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+                    current
+                      ? "bg-white/25 text-white"
+                      : done
+                        ? "bg-teal text-white"
+                        : "bg-slate-200 text-slate-muted"
+                  }`}
+                >
+                  {done ? "✓" : i + 1}
+                </span>
+                {label}
+              </span>
+              {i < STEPS.length - 1 && (
+                <span className="hidden h-px w-3 bg-line sm:block" aria-hidden />
+              )}
+            </li>
+          );
+        })}
       </ol>
 
       {/* Step 1 — Describe */}
       {step === 1 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-7 space-y-5">
           <Field
             label="Title (optional)"
             hint="A short headline — e.g. “Water pipe burst on 5th Cross”. If left blank we use the first words of your description."
@@ -325,8 +373,8 @@ export default function ReportForm({
 
       {/* Step 2 — Photos */}
       {step === 2 && (
-        <div className="mt-6 space-y-4">
-          <p className="text-sm text-slate-muted">
+        <div className="mt-7 space-y-5">
+          <p className="text-sm leading-6 text-slate-muted">
             Photos help the department find and fix the issue. Optional — up to{" "}
             {MAX_PHOTOS} images, JPG / PNG / WebP, each up to 10 MB.
           </p>
@@ -350,13 +398,17 @@ export default function ReportForm({
           >
             Add photos
           </Button>
-          {photoError && <p className="text-sm text-critical">{photoError}</p>}
+          {photoError && (
+            <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+              {photoError}
+            </p>
+          )}
           {photos.length > 0 && (
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((p) => (
                 <li
                   key={p.previewUrl}
-                  className="relative overflow-hidden rounded-lg border border-line"
+                  className="glass relative overflow-hidden rounded-2xl"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -364,8 +416,8 @@ export default function ReportForm({
                     alt="Complaint evidence"
                     className="h-32 w-full object-cover"
                   />
-                  <div className="flex items-center justify-between px-2 py-1.5">
-                    <span className="truncate text-xs text-slate-muted">
+                  <div className="flex items-center justify-between gap-2 px-2.5 py-1.5">
+                    <span className={`truncate text-xs ${p.error ? "font-medium text-critical" : "text-slate-muted"}`}>
                       {p.uploading
                         ? "Uploading…"
                         : p.error
@@ -376,7 +428,7 @@ export default function ReportForm({
                       onClick={() => removePhoto(p.previewUrl)}
                       aria-label="Remove photo"
                       data-testid="report-remove-photo"
-                      className="min-h-[32px] min-w-[32px] rounded text-sm font-bold text-critical hover:bg-critical-bg"
+                      className="flex min-h-[32px] min-w-[32px] items-center justify-center rounded-lg text-base font-bold text-critical hover:bg-critical-bg"
                     >
                       ×
                     </button>
@@ -398,7 +450,7 @@ export default function ReportForm({
 
       {/* Step 3 — Ward & location */}
       {step === 3 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-7 space-y-5">
           <Field label="Ward" hint="Pick the ward where the issue is.">
             <select
               value={wardId}
@@ -437,11 +489,15 @@ export default function ReportForm({
               {locating ? "Getting location…" : "Use my current location"}
             </Button>
             {lat !== null && lng !== null && (
-              <p className="mt-1 text-xs text-low">
+              <p className="mt-2 inline-flex rounded-full bg-low-bg px-3 py-1.5 text-xs font-semibold text-low">
                 Location attached: {lat.toFixed(5)}, {lng.toFixed(5)}
               </p>
             )}
-            {locError && <p className="mt-1 text-xs text-critical">{locError}</p>}
+            {locError && (
+              <p className="mt-2 rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+                {locError}
+              </p>
+            )}
           </div>
           <div className="flex justify-between">
             <Button variant="secondary" onClick={() => setStep(2)} data-testid="report-back-3">
@@ -463,44 +519,48 @@ export default function ReportForm({
 
       {/* Step 4 — AI suggestion */}
       {step === 4 && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-7 space-y-5">
           {analyzing && (
-            <p className="text-sm text-slate-muted" data-testid="report-analyzing">
-              Analysing your complaint…
-            </p>
+            <div className="glass rounded-2xl p-5" data-testid="report-analyzing">
+              <div className="h-4 w-2/3 animate-pulse rounded bg-indigo/10" />
+              <div className="mt-2 h-4 w-1/2 animate-pulse rounded bg-indigo/10" />
+              <p className="mt-3 text-sm text-slate-muted">Analysing your complaint…</p>
+            </div>
           )}
           {analyzeError && (
             <div>
-              <p className="text-sm text-critical">{analyzeError}</p>
+              <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+                {analyzeError}
+              </p>
               <Button
                 variant="secondary"
                 onClick={() => void runAnalysis()}
                 data-testid="report-retry-analysis"
-                className="mt-2"
+                className="mt-3"
               >
                 Try again
               </Button>
             </div>
           )}
           {analysis && (
-            <div className="space-y-4">
-              <div className="rounded-lg border border-line bg-canvas p-4">
-                <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-indigo/20 bg-gradient-to-br from-indigo/[0.06] via-violet/[0.05] to-teal/[0.05] p-4 sm:p-5">
+                <p className="text-xs font-bold tracking-[0.14em] text-indigo uppercase">
                   AI suggestion — you confirm
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-base font-bold text-navy-ink">
                     {categoryName(analysis.category)}
                   </span>
                   <SeverityBadge severity={analysis.severity} />
-                  <span className="text-xs text-slate-muted">
+                  <span className="text-xs font-medium text-slate-muted">
                     Confidence {Math.round(analysis.confidence * 100)}%
                     {analysis.source === "fallback" ? " (rule-based check — AI was unavailable)" : ""}
                   </span>
                 </div>
-                <p className="mt-2 text-sm">{analysis.reason}</p>
+                <p className="mt-2.5 text-sm leading-6 text-navy-ink">{analysis.reason}</p>
                 {analysis.language !== "en" && analysis.translated_text && (
-                  <p className="mt-2 text-sm text-slate-muted">
+                  <p className="mt-2.5 rounded-xl bg-white/70 px-3 py-2 text-sm leading-6 text-slate-muted">
                     Detected language: {analysis.language}. English version:{" "}
                     {analysis.translated_text}
                   </p>
@@ -523,30 +583,30 @@ export default function ReportForm({
               </Field>
 
               {analysis.departments.length === 0 ? (
-                <p className="rounded-lg border border-high/30 bg-high-bg p-4 text-sm text-high">
+                <p className="rounded-2xl border border-high/30 bg-high-bg p-4 text-sm leading-6 text-high">
                   No active department currently covers this ward for this
                   category. Please go back and check the ward, or try a
                   different description.
                 </p>
               ) : (
                 <fieldset>
-                  <legend className="text-xs font-medium tracking-wide text-slate-muted uppercase">
+                  <legend className="text-xs font-semibold tracking-[0.14em] text-slate-muted uppercase">
                     Suggested department — pick one
                   </legend>
                   {analysis.default_department_id === null && (
-                    <p className="mt-1 text-xs text-slate-muted">
+                    <p className="mt-1.5 text-xs leading-5 text-slate-muted">
                       The AI was not confident enough to pick a default — please
                       choose the department you think should handle this.
                     </p>
                   )}
-                  <div className="mt-2 space-y-2">
+                  <div className="mt-3 space-y-2.5">
                     {analysis.departments.map((d) => (
                       <label
                         key={d.id}
-                        className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${
+                        className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-3.5 transition-all ${
                           departmentId === d.id
-                            ? "border-teal bg-teal-soft"
-                            : "border-line bg-white"
+                            ? "border-indigo bg-indigo/[0.05] ring-2 ring-indigo/30"
+                            : "glass hover:bg-white/90"
                         }`}
                       >
                         <input
@@ -555,19 +615,19 @@ export default function ReportForm({
                           value={d.id}
                           checked={departmentId === d.id}
                           onChange={() => setDepartmentId(d.id)}
-                          className="mt-1"
+                          className="mt-1 accent-indigo"
                           data-testid={`report-dept-${d.id}`}
                         />
                         <span>
-                          <span className="block text-sm font-semibold">
+                          <span className="flex flex-wrap items-center gap-2 text-sm font-semibold text-navy-ink">
                             {d.name}
                             {analysis.default_department_id === d.id && (
-                              <span className="ml-2 rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-white">
+                              <span className="rounded-full bg-gradient-to-r from-indigo to-violet px-2 py-0.5 text-[11px] font-bold text-white">
                                 Suggested by AI
                               </span>
                             )}
                           </span>
-                          <span className="block text-xs text-slate-muted">
+                          <span className="mt-0.5 block text-xs leading-5 text-slate-muted">
                             {d.reason} · {Math.round(d.confidence * 100)}% match
                           </span>
                         </span>
@@ -595,57 +655,72 @@ export default function ReportForm({
 
       {/* Step 5 — Review */}
       {step === 5 && analysis && (
-        <div className="mt-6 space-y-4">
-          <dl className="space-y-2 text-sm">
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Title</dt>
-              <dd className="font-semibold">
-                {title.trim() || description.trim().slice(0, 80)}
-              </dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Description</dt>
-              <dd className="whitespace-pre-wrap">{description.trim()}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Ward</dt>
-              <dd>{wards.find((w) => w.id === wardId)?.name ?? "—"}</dd>
-            </div>
-            {address && (
-              <div className="flex gap-2">
-                <dt className="w-28 shrink-0 text-slate-muted">Address</dt>
-                <dd>{address}</dd>
+        <div className="mt-7 space-y-5">
+          <GlassCard className="p-1 sm:p-2">
+            <dl className="divide-y divide-line">
+              {[
+                { label: "Title", value: title.trim() || description.trim().slice(0, 80) },
+                { label: "Description", value: description.trim(), pre: true },
+                { label: "Ward", value: wards.find((w) => w.id === wardId)?.name ?? "—" },
+                ...(address
+                  ? [{ label: "Address", value: address }]
+                  : []),
+                { label: "Category", value: categoryName(categorySlug) },
+                { label: "Department", value: analysis.departments.find((d) => d.id === departmentId)?.name ?? "—" },
+                {
+                  label: "Photos",
+                  value: `${photos.filter((p) => p.path && !p.error).length} uploaded${photos.some((p) => p.error) ? " (some failed — they will be skipped)" : ""}`,
+                },
+              ].map((row) => (
+                <div key={row.label} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-3">
+                  <dt className="w-28 shrink-0 text-xs font-semibold tracking-wide text-slate-muted uppercase sm:pt-0.5">
+                    {row.label}
+                  </dt>
+                  <dd className={`text-sm leading-6 text-navy-ink ${row.pre ? "whitespace-pre-wrap" : ""}`}>
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+              <div className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-3">
+                <dt className="w-28 shrink-0 text-xs font-semibold tracking-wide text-slate-muted uppercase sm:pt-0.5">
+                  Severity
+                </dt>
+                <dd>
+                  <SeverityBadge severity={analysis.severity} />
+                </dd>
               </div>
-            )}
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Category</dt>
-              <dd>{categoryName(categorySlug)}</dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Severity</dt>
-              <dd>
-                <SeverityBadge severity={analysis.severity} />
-              </dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Department</dt>
-              <dd>
-                {analysis.departments.find((d) => d.id === departmentId)?.name ?? "—"}
-              </dd>
-            </div>
-            <div className="flex gap-2">
-              <dt className="w-28 shrink-0 text-slate-muted">Photos</dt>
-              <dd>
-                {photos.filter((p) => p.path && !p.error).length} uploaded
-                {photos.some((p) => p.error) ? " (some failed — they will be skipped)" : ""}
-              </dd>
-            </div>
-          </dl>
-          <p className="text-xs text-slate-muted">
+            </dl>
+          </GlassCard>
+          <p className="text-xs leading-5 text-slate-muted">
             By submitting, you confirm this report is about a real issue in the
             ward above. The department you picked will receive it.
           </p>
-          {submitError && <p className="text-sm text-critical">{submitError}</p>}
+          {duplicate && (
+            <div
+              role="alert"
+              className="rounded-2xl border border-high/30 bg-high-bg p-4"
+              data-testid="report-duplicate-error"
+            >
+              <p className="text-sm font-bold text-high">
+                This looks like a complaint you already reported.
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-muted">{duplicate.message}</p>
+              {duplicate.existing_complaint_id && (
+                <Link
+                  href={`/citizen/complaints/${duplicate.existing_complaint_id}`}
+                  data-testid="report-duplicate-link"
+                  className="mt-3 inline-flex min-h-[44px] items-center rounded-xl bg-white/90 px-4 text-sm font-semibold text-indigo shadow-sm hover:text-violet"
+                >
+                  View {duplicate.existing_ticket_no ?? "the existing complaint"} →
+                </Link>
+              )}
+            </div>
+          )}
+          {submitError && (
+            <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+              {submitError}
+            </p>
+          )}
           <div className="flex justify-between">
             <Button variant="secondary" onClick={() => setStep(4)} data-testid="report-back-5">
               Back
@@ -660,6 +735,6 @@ export default function ReportForm({
           </div>
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 }

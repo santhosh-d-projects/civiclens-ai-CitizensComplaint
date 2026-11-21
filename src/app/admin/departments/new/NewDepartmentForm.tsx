@@ -128,12 +128,12 @@ export default function NewDepartmentForm() {
         {STEPS.map((s, i) => (
           <li
             key={s}
-            className={`rounded-full px-3 py-2 text-xs font-semibold ${
+            className={`rounded-full px-3 py-2 text-xs font-semibold transition-all ${
               i === step
-                ? "bg-navy text-white"
+                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
                 : i < step
                   ? "bg-teal-soft text-teal"
-                  : "bg-white text-slate-muted border border-line"
+                  : "glass text-slate-muted"
             }`}
           >
             {i + 1}. {s}
@@ -142,12 +142,12 @@ export default function NewDepartmentForm() {
       </ol>
 
       {error && (
-        <p className="mt-4 rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
+        <p className="mt-4 rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
           {error}
         </p>
       )}
 
-      <div className="mt-6 max-w-2xl space-y-5 rounded-lg border border-line bg-white p-6">
+      <div className="space-y-5">
         {step === 0 && (
           <>
             <Field label="Department name">
@@ -165,7 +165,7 @@ export default function NewDepartmentForm() {
                     type="button"
                     onClick={() => toggle(categoryIds, c.id, setCategoryIds)}
                     data-testid={`new-dept-category-${c.slug}`}
-                    className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold ${categoryIds.includes(c.id) ? "border-teal bg-teal-soft text-teal" : "border-line bg-white"}`}
+                    className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
                   >
                     {c.name}
                   </button>
@@ -184,7 +184,7 @@ export default function NewDepartmentForm() {
                   type="button"
                   onClick={() => toggle(wardIds, w.id, setWardIds)}
                   data-testid={`new-dept-ward-${w.id}`}
-                  className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold ${wardIds.includes(w.id) ? "border-teal bg-teal-soft text-teal" : "border-line bg-white"}`}
+                  className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}
                 >
                   {w.name} <span className="text-xs text-slate-muted">· {w.zone}</span>
                 </button>
@@ -238,7 +238,7 @@ export default function NewDepartmentForm() {
             {uploading && <p className="text-sm text-slate-muted">Uploading…</p>}
             <ul className="space-y-1 text-sm">
               {docs.map((d) => (
-                <li key={d.path} className="flex justify-between gap-2 rounded border border-line px-3 py-2">
+                <li key={d.path} className="flex justify-between gap-2 rounded-xl border border-line bg-white/70 px-3 py-2.5">
                   <span className="truncate">{d.name}</span>
                   <button
                     type="button"
@@ -256,7 +256,7 @@ export default function NewDepartmentForm() {
                 type="checkbox"
                 checked={affirmed}
                 onChange={(e) => setAffirmed(e.target.checked)}
-                className="mt-1 h-5 w-5 accent-teal"
+                className="mt-1 h-5 w-5 accent-indigo"
                 data-testid="new-dept-affirm"
               />
               <span>
@@ -268,7 +268,7 @@ export default function NewDepartmentForm() {
           </>
         )}
 
-        <div className="flex flex-wrap justify-between gap-2 border-t border-line pt-4">
+        <div className="flex flex-wrap justify-between gap-2 border-t border-line pt-5">
           <Button
             variant="secondary"
             disabled={step === 0 || busy}

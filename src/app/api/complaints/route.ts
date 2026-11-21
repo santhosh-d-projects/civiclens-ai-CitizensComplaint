@@ -84,6 +84,24 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (err) {
+    // Duplicate guard (03_duplicate_guard.sql): the SQL error carries the
+    // existing ticket — surface it so the UI can link to the original
+    // complaint instead of showing a generic failure.
+    const message = err instanceof Error ? err.message : String(err);
+    const dup = /DUPLICATE_COMPLAINT:([A-Z]+-\d+):([0-9a-f-]{36})/.exec(message);
+    if (dup) {
+      return Response.json(
+        {
+          error: {
+            code: "DUPLICATE_COMPLAINT",
+            message: `You already reported this exact complaint as ${dup[1]}. It was not registered again.`,
+            existing_ticket_no: dup[1],
+            existing_complaint_id: dup[2],
+          },
+        },
+        { status: 409 },
+      );
+    }
     return sqlErrorToResponse(err);
   }
 }

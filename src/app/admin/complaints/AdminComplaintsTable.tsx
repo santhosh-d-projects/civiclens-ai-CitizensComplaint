@@ -11,6 +11,7 @@ import {
   SeverityBadge,
   EmptyState,
   Drawer,
+  GlassCard,
   inputClass,
 } from "@/components/ui";
 
@@ -108,7 +109,7 @@ export default function AdminComplaintsTable() {
 
   return (
     <div className="mt-6">
-      <div className="rounded border border-teal/40 bg-teal-soft px-4 py-3 text-sm">
+      <div className="glass rounded-2xl border-teal/40 bg-teal-soft/70 px-4 py-3 text-sm shadow-[0_8px_24px_rgba(13,148,136,0.12)]">
         <strong>Admin monitoring mode.</strong> Complaints are routed by
         citizen confirmation based on AI suggestions. Admin accounts monitor
         city-wide performance and do not manually route or dispatch individual
@@ -175,15 +176,15 @@ export default function AdminComplaintsTable() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
+        <p className="mt-4 rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
           {error}
         </p>
       )}
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-line bg-white">
+      <GlassCard className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[860px] text-left text-sm">
           <thead>
-            <tr className="border-b border-line bg-slate-50 text-xs uppercase tracking-wide text-slate-muted">
+            <tr className="border-b border-line bg-white/60 text-xs uppercase tracking-wide text-slate-muted">
               <th className="px-4 py-3">Ticket</th>
               <th className="px-4 py-3">Citizen report</th>
               <th className="px-4 py-3">Department</th>
@@ -204,7 +205,7 @@ export default function AdminComplaintsTable() {
                 <tr
                   key={r.id}
                   onClick={() => openDetail(r.id)}
-                  className="cursor-pointer border-b border-line last:border-0 hover:bg-slate-50"
+                  className="cursor-pointer border-b border-line last:border-0 transition-colors hover:bg-indigo/[0.04]"
                   data-testid={`admin-complaint-row-${r.ticket_no}`}
                 >
                   <td className="tnum px-4 py-3 font-semibold">{r.ticket_no}</td>
@@ -220,7 +221,7 @@ export default function AdminComplaintsTable() {
             )}
           </tbody>
         </table>
-      </div>
+      </GlassCard>
 
       <div className="mt-4 flex items-center gap-3">
         <Button variant="secondary" disabled={page <= 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))} data-testid="admin-complaints-prev">← Previous</Button>
@@ -241,8 +242,8 @@ export default function AdminComplaintsTable() {
               <StatusPill status={detail.complaint.status} />
               <SeverityBadge severity={detail.complaint.severity} />
             </div>
-            <div>
-              <h3 className="font-semibold">{detail.complaint.title}</h3>
+            <div className="glass rounded-2xl p-4">
+              <h3 className="font-bold">{detail.complaint.title}</h3>
               <p className="mt-1 text-slate-muted">{detail.complaint.description}</p>
               <dl className="mt-3 space-y-1">
                 <div className="flex justify-between gap-4"><dt className="text-slate-muted">Department</dt><dd>{detail.complaint.department_name}</dd></div>
@@ -256,8 +257,8 @@ export default function AdminComplaintsTable() {
               </dl>
             </div>
             {detail.complaint.ai_reason && (
-              <section>
-                <h4 className="font-semibold">AI suggestion & citizen confirmation</h4>
+              <section className="glass rounded-2xl p-4">
+                <h4 className="font-bold">AI suggestion & citizen confirmation</h4>
                 <p className="mt-1 text-slate-muted">{detail.complaint.ai_reason}</p>
                 <p className="mt-1 text-xs text-slate-muted">
                   {detail.aiLog ? `Analysed by ${detail.aiLog.provider}/${detail.aiLog.model} (${detail.aiLog.source})` : ""}
@@ -266,8 +267,8 @@ export default function AdminComplaintsTable() {
               </section>
             )}
             {detail.transfers.length > 0 && (
-              <section>
-                <h4 className="font-semibold">Transfers</h4>
+              <section className="glass rounded-2xl p-4">
+                <h4 className="font-bold">Transfers</h4>
                 <ul className="mt-1 space-y-1 text-slate-muted">
                   {detail.transfers.map((t) => (
                     <li key={t.id}>
@@ -277,11 +278,11 @@ export default function AdminComplaintsTable() {
                 </ul>
               </section>
             )}
-            <section>
-              <h4 className="font-semibold">Timeline</h4>
+            <section className="glass rounded-2xl p-4">
+              <h4 className="font-bold">Timeline</h4>
               <ul className="mt-2 space-y-2">
                 {detail.events.map((e) => (
-                  <li key={e.id} className="border-l-2 border-line pl-3">
+                  <li key={e.id} className="border-l-2 border-indigo/30 pl-3">
                     <p className="font-medium">{e.event.replace(/_/g, " ")}</p>
                     <p className="text-xs text-slate-muted">{new Date(e.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
                   </li>
@@ -289,8 +290,8 @@ export default function AdminComplaintsTable() {
               </ul>
             </section>
             {detail.complaint.resolution_note && (
-              <section>
-                <h4 className="font-semibold">Resolution note</h4>
+              <section className="glass rounded-2xl p-4">
+                <h4 className="font-bold">Resolution note</h4>
                 <p className="mt-1 text-slate-muted">{detail.complaint.resolution_note}</p>
               </section>
             )}

@@ -36,7 +36,7 @@ export default function ChangePasswordForm() {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold">Change password</h3>
+      <h3 className="text-sm font-bold text-navy-ink">Change password</h3>
       <div className="mt-3 space-y-3">
         <Field label="New password">
           <input
@@ -58,8 +58,16 @@ export default function ChangePasswordForm() {
             autoComplete="new-password"
           />
         </Field>
-        {error && <p className="text-sm text-critical">{error}</p>}
-        {success && <p className="text-sm text-low">{success}</p>}
+        {error && (
+          <p className="rounded-xl border border-critical/30 bg-critical-bg px-3 py-2.5 text-sm font-medium text-critical">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="rounded-xl border border-low/30 bg-low-bg px-3 py-2.5 text-sm font-medium text-low">
+            {success}
+          </p>
+        )}
         <Button
           variant="secondary"
           onClick={submit}

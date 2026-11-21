@@ -1,41 +1,118 @@
 @import "tailwindcss";
 
-/* Complaint-Sathi design tokens from stitch DESIGN.md (Civic Precision /
-   Civic Dignity). Teal/navy institutional system. */
+/* Complaint-Sathi — Civic Glass design system (redesign 21 Nov 2026).
+   Light glassmorphism: lavender canvas, white frosted glass, indigo →
+   violet gradients, civic teal accents, midnight-navy dark surfaces.
+   Tokens reconciled from stitch_complaint_sathi_civic_redesign:
+   civic_glass_system (dark) + complaint_sathi_civic_glass_light.
+   Old token names are kept (remapped) so un-redesigned pages still render. */
 @theme {
-  --color-canvas: #f6f8fa;
+  /* Canvas + surfaces */
+  --color-canvas: #f4f5ff;
   --color-surface: #ffffff;
-  --color-navy: #17324d;
-  --color-navy-hover: #12273d;
-  --color-navy-ink: #172b3a;
-  --color-teal: #087f8c;
-  --color-teal-soft: rgba(8, 127, 140, 0.15);
+  --color-glass: rgba(255, 255, 255, 0.72);
+  --color-glass-strong: rgba(255, 255, 255, 0.88);
+  --color-navy: #3730a3;
+  --color-navy-hover: #312e81;
+  --color-navy-ink: #111b45;
+  --color-midnight: #0b1326;
+  --color-midnight-soft: #131b2e;
+  --color-indigo: #4f46e5;
+  --color-indigo-deep: #3730a3;
+  --color-violet: #7c3aed;
+  --color-electric: #6366f1;
+  --color-teal: #0d9488;
+  --color-teal-soft: rgba(13, 148, 136, 0.12);
+  --color-cyan-soft: #67e8f9;
   --color-blue: #2563eb;
   --color-slate-muted: #64748b;
-  --color-line: #e2e8f0;
-  --color-critical: #b42318;
-  --color-critical-bg: #fef3f2;
-  --color-high: #d97706;
-  --color-high-bg: #fffbeb;
-  --color-medium: #2563eb;
-  --color-medium-bg: #eff6ff;
-  --color-low: #16845b;
-  --color-low-bg: #ecfdf5;
+  --color-slate-faint: #94a3b8;
+  --color-line: rgba(99, 102, 241, 0.18);
+  --color-line-strong: rgba(255, 255, 255, 0.85);
 
-  --font-sans: var(--font-geist-sans);
+  /* Status (light glass tokens) */
+  --color-critical: #dc2626;
+  --color-critical-bg: #fee2e2;
+  --color-high: #ea580c;
+  --color-high-bg: #ffedd5;
+  --color-medium: #2563eb;
+  --color-medium-bg: #dbeafe;
+  --color-low: #059669;
+  --color-low-bg: #d1fae5;
+  --color-pending: #d97706;
+  --color-pending-bg: #fef3c7;
+
+  --font-sans: var(--font-display);
+  --font-display: var(--font-jakarta);
+  --font-body: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 }
 
 :root {
-  --background: #f6f8fa;
-  --foreground: #172b3a;
+  --background: #f4f5ff;
+  --foreground: #111b45;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Headings use the display face */
+h1, h2, h3, .font-display {
+  font-family: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+}
+
+/* Ambient canvas: soft lavender / violet / cyan glows over the canvas.
+   Rendered by the fixed .ambient-bg layer in the root layout. */
+.ambient-bg {
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, rgba(167, 139, 250, 0.35), transparent 60%),
+    radial-gradient(50rem 28rem at -10% 20%, rgba(199, 210, 254, 0.55), transparent 60%),
+    radial-gradient(45rem 26rem at 60% 110%, rgba(186, 230, 253, 0.45), transparent 60%),
+    linear-gradient(180deg, #f4f5ff 0%, #eef2ff 100%);
+}
+
+/* Frosted glass surfaces */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 12px 32px -16px rgba(17, 27, 69, 0.18);
+}
+.glass-strong {
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 20px 40px -16px rgba(17, 27, 69, 0.22);
+}
+/* Dark glass (sidebars, headers, midnight surfaces) */
+.glass-dark {
+  background: rgba(11, 19, 38, 0.82);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.45);
+}
+
+/* Gradient text for hero / display headings */
+.text-gradient {
+  background: linear-gradient(100deg, #4f46e5 0%, #7c3aed 55%, #0d9488 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Tabular numerics for ticket IDs, counts, dates, SLA timers */

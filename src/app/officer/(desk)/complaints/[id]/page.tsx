@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 import { notFound, redirect } from "next/navigation";
 import { requireActiveDepartment } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { SeverityBadge, StatusPill } from "@/components/ui";
+import { SeverityBadge, StatusPill, GlassCard } from "@/components/ui";
 import { slaLabel, formatDateTime } from "@/app/officer/format";
 import UpdateForm from "./UpdateForm";
 import type { Complaint, ComplaintEvent } from "@/lib/database.types";
@@ -88,82 +88,84 @@ export default async function OfficerComplaintDetail({
 
   return (
     <div>
-      <a href="/officer/complaints" className="text-sm font-semibold text-teal hover:underline" data-testid="detail-back-queue">
+      <a href="/officer/complaints" className="inline-flex min-h-[44px] items-center rounded-full px-3 text-sm font-semibold text-indigo transition-colors hover:bg-indigo/5" data-testid="detail-back-queue">
         ← Back to queue
       </a>
-      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="tnum text-2xl font-semibold">{c.ticket_no}</h1>
-            <SeverityBadge severity={c.severity} />
-            <StatusPill status={c.status} />
+      <GlassCard className="mt-3 p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="tnum text-2xl font-bold text-navy-ink">{c.ticket_no}</h1>
+              <SeverityBadge severity={c.severity} />
+              <StatusPill status={c.status} />
+            </div>
+            <h2 className="mt-2 text-lg font-bold text-navy-ink">{c.title}</h2>
+            <p className="mt-1 text-sm text-slate-muted">
+              {(dept as { name: string } | null)?.name ?? ""} ·{" "}
+              {(ward as { name: string } | null)?.name ?? "Ward not set"} ·{" "}
+              {(cat as { name: string } | null)?.name ?? "Uncategorised"} · Submitted{" "}
+              {formatDateTime(c.created_at)}
+            </p>
           </div>
-          <h2 className="mt-1 text-lg font-semibold">{c.title}</h2>
-          <p className="mt-1 text-sm text-slate-muted">
-            {(dept as { name: string } | null)?.name ?? ""} ·{" "}
-            {(ward as { name: string } | null)?.name ?? "Ward not set"} ·{" "}
-            {(cat as { name: string } | null)?.name ?? "Uncategorised"} · Submitted{" "}
-            {formatDateTime(c.created_at)}
-          </p>
+          <span
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold ${sla.tone === "bad" ? "bg-critical-bg text-critical" : sla.tone === "warn" ? "bg-high-bg text-high" : "bg-low-bg text-low"}`}
+            data-testid="detail-sla"
+          >
+            {sla.text}
+          </span>
         </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${sla.tone === "bad" ? "bg-critical-bg text-critical" : sla.tone === "warn" ? "bg-high-bg text-high" : "bg-low-bg text-low"}`}
-          data-testid="detail-sla"
-        >
-          {sla.text}
-        </span>
-      </div>
+      </GlassCard>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="rounded-lg border border-line bg-white p-5">
-            <h3 className="text-sm font-semibold">Description</h3>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{c.description}</p>
+          <GlassCard className="p-5 sm:p-6">
+            <h3 className="text-sm font-bold text-navy-ink">Description</h3>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-navy-ink">{c.description}</p>
             {c.address && (
               <p className="mt-3 text-sm text-slate-muted">Location: {c.address}</p>
             )}
             {c.language && c.language !== "en" && (
               <p className="mt-1 text-xs text-slate-muted">Reported in {c.language.toUpperCase()}</p>
             )}
-          </section>
+          </GlassCard>
 
           {photoUrls.length > 0 && (
-            <section className="rounded-lg border border-line bg-white p-5">
-              <h3 className="text-sm font-semibold">Citizen photos</h3>
+            <GlassCard className="p-5 sm:p-6">
+              <h3 className="text-sm font-bold text-navy-ink">Citizen photos</h3>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {photoUrls.map((p) => (
                   <a key={p.path} href={p.url} target="_blank" rel="noreferrer" data-testid="detail-photo">
-                    <img src={p.url} alt="Complaint evidence" className="h-32 w-full rounded object-cover" />
+                    <img src={p.url} alt="Complaint evidence" className="h-32 w-full rounded-2xl object-cover ring-1 ring-white/70 transition hover:opacity-90" />
                   </a>
                 ))}
               </div>
-            </section>
+            </GlassCard>
           )}
 
           {resolutionUrls.length > 0 && (
-            <section className="rounded-lg border border-line bg-white p-5">
-              <h3 className="text-sm font-semibold">Resolution proof</h3>
+            <GlassCard className="p-5 sm:p-6">
+              <h3 className="text-sm font-bold text-navy-ink">Resolution proof</h3>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {resolutionUrls.map((p) => (
                   <a key={p.path} href={p.url} target="_blank" rel="noreferrer" data-testid="detail-resolution-photo">
-                    <img src={p.url} alt="Resolution proof" className="h-32 w-full rounded object-cover" />
+                    <img src={p.url} alt="Resolution proof" className="h-32 w-full rounded-2xl object-cover ring-1 ring-white/70 transition hover:opacity-90" />
                   </a>
                 ))}
               </div>
-            </section>
+            </GlassCard>
           )}
 
-          <section className="rounded-lg border border-line bg-white p-5">
-            <h3 className="text-sm font-semibold">Timeline</h3>
+          <GlassCard className="p-5 sm:p-6">
+            <h3 className="text-sm font-bold text-navy-ink">Timeline</h3>
             {timeline.length === 0 ? (
               <p className="mt-2 text-sm text-slate-muted">No events recorded yet.</p>
             ) : (
-              <ol className="mt-3 space-y-3">
+              <ol className="mt-4 space-y-5 border-l-2 border-indigo/15 pl-5">
                 {timeline.map((e) => (
-                  <li key={e.id} className="flex gap-3 text-sm">
-                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal" />
+                  <li key={e.id} className="relative text-sm">
+                    <span className="absolute -left-[27px] mt-1 h-2.5 w-2.5 rounded-full bg-gradient-to-br from-indigo to-violet ring-4 ring-white/70" />
                     <div>
-                      <p className="font-semibold">{EVENT_LABELS[e.event] ?? e.event}</p>
+                      <p className="font-semibold text-navy-ink">{EVENT_LABELS[e.event] ?? e.event}</p>
                       <p className="text-xs text-slate-muted">
                         {formatDateTime(e.created_at)}
                         {e.actor_id ? ` · ${actorNames.get(e.actor_id) ?? "Officer"}` : ""}
@@ -176,39 +178,39 @@ export default async function OfficerComplaintDetail({
                 ))}
               </ol>
             )}
-          </section>
+          </GlassCard>
         </div>
 
         <div className="space-y-6">
-          <section className="rounded-lg border border-line bg-white p-5">
-            <h3 className="text-sm font-semibold">Citizen</h3>
-            <p className="mt-2 text-sm">
+          <GlassCard className="p-5 sm:p-6">
+            <h3 className="text-sm font-bold text-navy-ink">Citizen</h3>
+            <p className="mt-2 text-sm font-semibold text-navy-ink">
               {(citizen as { full_name: string | null } | null)?.full_name ?? "Citizen"}
             </p>
-            <p className="mt-1 text-xs text-slate-muted">
+            <p className="mt-1 text-xs leading-5 text-slate-muted">
               Contact details are not shown to officers. The citizen is notified of status changes.
             </p>
-          </section>
+          </GlassCard>
 
           {c.ai_reason && (
-            <section className="rounded-lg border border-line bg-white p-5">
-              <h3 className="text-sm font-semibold">AI suggestion (for reference)</h3>
-              <p className="mt-2 text-sm text-slate-muted">{c.ai_reason}</p>
-              <p className="tnum mt-1 text-xs text-slate-muted">
+            <GlassCard className="p-5 sm:p-6">
+              <h3 className="text-sm font-bold text-navy-ink">AI suggestion <span className="font-medium text-slate-muted">(for reference)</span></h3>
+              <p className="mt-2 text-sm leading-6 text-slate-muted">{c.ai_reason}</p>
+              <p className="tnum mt-2 text-xs text-slate-muted">
                 Confidence {c.ai_confidence != null ? `${Math.round(c.ai_confidence * 100)}%` : "—"}
                 {c.citizen_changed_suggestion ? " · citizen changed the suggested department" : ""}
               </p>
-            </section>
+            </GlassCard>
           )}
 
           {c.resolution_note && (
-            <section className="rounded-lg border border-line bg-white p-5">
-              <h3 className="text-sm font-semibold">Resolution note</h3>
-              <p className="mt-2 text-sm">{c.resolution_note}</p>
+            <GlassCard className="p-5 sm:p-6">
+              <h3 className="text-sm font-bold text-navy-ink">Resolution note</h3>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-navy-ink">{c.resolution_note}</p>
               {c.resolved_at && (
-                <p className="tnum mt-1 text-xs text-slate-muted">Resolved {formatDateTime(c.resolved_at)}</p>
+                <p className="tnum mt-2 text-xs text-slate-muted">Resolved {formatDateTime(c.resolved_at)}</p>
               )}
-            </section>
+            </GlassCard>
           )}
 
           <UpdateForm complaintId={c.id} currentStatus={c.status} />

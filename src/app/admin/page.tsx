@@ -2,33 +2,8 @@
 // client component (recharts) fed with the same data.
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusPill, EmptyState } from "@/components/ui";
+import { StatusPill, EmptyState, StatCard, PageHeader, GlassCard } from "@/components/ui";
 import AdminCharts from "./AdminCharts";
-
-function StatCard({
-  label,
-  value,
-  sub,
-  testId,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-  testId?: string;
-}) {
-  return (
-    <div
-      className="rounded-lg border border-line bg-white p-5"
-      data-testid={testId}
-    >
-      <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">
-        {label}
-      </p>
-      <p className="tnum mt-2 text-3xl font-semibold">{value}</p>
-      {sub && <p className="mt-1 text-sm text-slate-muted">{sub}</p>}
-    </div>
-  );
-}
 
 export default async function AdminDashboard() {
   const admin = createAdminClient();
@@ -68,38 +43,36 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Admin overview</h1>
-          <p className="mt-1 text-sm text-slate-muted">
-            City-wide complaints and department approvals. Admins monitor —
-            they never route individual complaints.
-          </p>
-        </div>
-        <Link
-          href="/admin/departments/new"
-          data-testid="admin-new-department"
-          className="inline-flex min-h-[44px] items-center rounded bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-hover"
-        >
-          + New department
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Admin console"
+        title="Admin overview"
+        sub="City-wide complaints and department approvals. Admins monitor — they never route individual complaints."
+        actions={
+          <Link
+            href="/admin/departments/new"
+            data-testid="admin-new-department"
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
+          >
+            + New department
+          </Link>
+        }
+      />
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total complaints" value={complaints.length} testId="kpi-total-complaints" />
-        <StatCard label="Open complaints" value={open} sub={`${resolved} resolved`} testId="kpi-open-complaints" />
-        <StatCard label="Pending applications" value={pending} sub={`${changes} changes requested`} testId="kpi-pending-apps" />
-        <StatCard label="Departments" value={`${active} active`} sub={`${suspended} suspended · ${departments.length} total`} testId="kpi-departments" />
+        <StatCard label="Total complaints" value={String(complaints.length)} tone="indigo" testId="kpi-total-complaints" />
+        <StatCard label="Open complaints" value={String(open)} sub={`${resolved} resolved`} tone="amber" testId="kpi-open-complaints" />
+        <StatCard label="Pending applications" value={String(pending)} sub={`${changes} changes requested`} tone="violet" testId="kpi-pending-apps" />
+        <StatCard label="Departments" value={`${active} active`} sub={`${suspended} suspended · ${departments.length} total`} tone="teal" testId="kpi-departments" />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <AdminCharts byStatus={byStatus} bySeverity={bySeverity} byDepartment={byDepartment} />
       </div>
 
-      <section className="mt-6 rounded-lg border border-line bg-white">
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h2 className="text-base font-semibold">Recent audit events</h2>
-          <Link href="/admin/audit" data-testid="admin-view-audit" className="text-sm font-semibold text-teal hover:underline">
+      <GlassCard className="mt-6 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-line bg-white/50 px-5 py-4">
+          <h2 className="text-base font-bold">Recent audit events</h2>
+          <Link href="/admin/audit" data-testid="admin-view-audit" className="text-sm font-bold text-indigo hover:text-violet">
             View audit log →
           </Link>
         </div>
@@ -127,7 +100,7 @@ export default async function AdminDashboard() {
             ))}
           </ul>
         )}
-      </section>
+      </GlassCard>
     </div>
   );
 }

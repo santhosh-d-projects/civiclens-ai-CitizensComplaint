@@ -103,6 +103,7 @@ export function sqlErrorToResponse(err: unknown) {
     [/NOT_AN_OFFICER/, 403, "Only a department officer can do this."],
     [/NOT_FOUND/, 404, "Not found."],
     [/RESOLUTION_NOTE_REQUIRED/, 422, "A resolution note is required to mark a complaint resolved."],
+    [/DUPLICATE_COMPLAINT/, 409, "You already reported this exact complaint."],
   ];
   for (const [re, status, friendly] of map) {
     if (re.test(message)) return apiError(re.source.replace(/[/\\^$]/g, ""), friendly, status);

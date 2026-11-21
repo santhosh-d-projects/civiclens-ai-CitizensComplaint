@@ -1,5 +1,6 @@
 import AnalyticsCharts from "./AnalyticsCharts";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { PageHeader, StatCard } from "@/components/ui";
 
 export default async function AdminAnalyticsPage() {
   const admin = createAdminClient();
@@ -43,29 +44,21 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">City analytics</h1>
-      <p className="mt-1 text-sm text-slate-muted">
-        Complaint volumes, resolution times and AI performance — all from live
-        data.
-      </p>
+      <PageHeader
+        eyebrow="City analytics"
+        title="City analytics"
+        sub="Complaint volumes, resolution times and AI performance — all from live data."
+      />
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">Total complaints</p>
-          <p className="tnum mt-2 text-3xl font-semibold">{complaints.length}</p>
-        </div>
-        <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">Avg. resolution time</p>
-          <p className="tnum mt-2 text-3xl font-semibold">{avgResolutionHours === null ? "—" : `${avgResolutionHours}h`}</p>
-          <p className="mt-1 text-sm text-slate-muted">{resolutionHours.length} resolved</p>
-        </div>
-        <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">Wards with complaints</p>
-          <p className="tnum mt-2 text-3xl font-semibold">{Object.keys(byWard).length}</p>
-        </div>
-        <div className="rounded-lg border border-line bg-white p-5">
-          <p className="text-xs font-medium tracking-wide text-slate-muted uppercase">Departments receiving</p>
-          <p className="tnum mt-2 text-3xl font-semibold">{Object.keys(byDepartment).length}</p>
-        </div>
+        <StatCard label="Total complaints" value={String(complaints.length)} tone="indigo" />
+        <StatCard
+          label="Avg. resolution time"
+          value={avgResolutionHours === null ? "—" : `${avgResolutionHours}h`}
+          sub={`${resolutionHours.length} resolved`}
+          tone="teal"
+        />
+        <StatCard label="Wards with complaints" value={String(Object.keys(byWard).length)} tone="violet" />
+        <StatCard label="Departments receiving" value={String(Object.keys(byDepartment).length)} tone="blue" />
       </div>
       <div className="mt-6">
         <AnalyticsCharts

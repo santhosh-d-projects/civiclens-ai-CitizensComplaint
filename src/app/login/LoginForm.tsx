@@ -52,9 +52,13 @@ export default function LoginForm() {
       token: code.trim(),
       type: "email",
     });
-    setBusy(false);
-    if (error) setError(error.message);
-    else await routeByRole();
+    // On success the button stays busy until the navigation unmounts this
+    // page; clearing it first makes a slow navigation look like a failed
+    // sign-in (smoke test 21 Nov: first click appeared to stall).
+    if (error) {
+      setBusy(false);
+      setError(error.message);
+    } else await routeByRole();
   }
 
   async function signInPassword() {
@@ -65,9 +69,11 @@ export default function LoginForm() {
       email,
       password,
     });
-    setBusy(false);
-    if (error) setError(error.message);
-    else await routeByRole();
+    // See verifyOtp: keep the button busy until navigation unmounts the page.
+    if (error) {
+      setBusy(false);
+      setError(error.message);
+    } else await routeByRole();
   }
 
   async function signUp() {
@@ -86,13 +92,17 @@ export default function LoginForm() {
     const { data, error } = await supabase.auth.signUp({ email, password });
     setBusy(false);
     if (error) {
+      setBusy(false);
       setError(error.message);
       return;
     }
     // If email confirmation is on, Supabase returns no session: the citizen
     // confirms via the email link, then signs in with the same password.
     if (data.session) await routeByRole();
-    else setInfo("Account created. Check your email to confirm it, then sign in with your password.");
+    else {
+      setBusy(false);
+      setInfo("Account created. Check your email to confirm it, then sign in with your password.");
+    }
   }
 
   async function routeByRole() {
@@ -114,165 +124,193 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
-      <div className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">
-          {auth === "signup" ? "Create your citizen account" : "Sign in to Complaint-Sathi"}
-        </h1>
-        <p className="mt-1 text-sm text-slate-muted">
-          {auth === "signup"
-            ? "Register with your email and a password. You will sign in with the same email and password."
-            : "Sign in with your email and password. Officers use the password set from their invite."}
-        </p>
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+        <div className="glass-strong rounded-3xl p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-xl font-extrabold text-white shadow-[0_8px_20px_rgba(79,70,229,0.4)]">
+              S
+            </span>
+            <span>
+              <span className="block text-lg leading-none font-bold text-navy-ink">
+                Complaint-<span className="text-gradient">Sathi</span>
+              </span>
+              <span className="mt-1 block text-xs font-medium text-slate-muted">
+                Civic Complaint Portal · Bengaluru
+              </span>
+            </span>
+          </div>
 
-        <div className="mt-5 flex gap-2">
-          <Button
-            variant={mode === "password" ? "primary" : "secondary"}
-            onClick={() => setMode("password")}
-            data-testid="login-mode-password"
-            className="flex-1"
-          >
-            Password
-          </Button>
-          <Button
-            variant={mode === "otp" ? "primary" : "secondary"}
-            onClick={() => setMode("otp")}
-            data-testid="login-mode-otp"
-            className="flex-1"
-          >
-            Email code
-          </Button>
-        </div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight text-navy-ink">
+            {auth === "signup" ? "Create your citizen account" : "Sign in to Complaint-Sathi"}
+          </h1>
+          <p className="mt-1.5 text-sm leading-6 text-slate-muted">
+            {auth === "signup"
+              ? "Register with your email and a password. You will sign in with the same email and password."
+              : "Sign in with your email and password. Officers use the password set from their invite."}
+          </p>
 
-        <div className="mt-5 space-y-4">
-          <Field label="Email" error={undefined}>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className={inputClass}
-              data-testid="login-email"
-              autoComplete="email"
-            />
-          </Field>
+          <div className="glass mt-6 flex gap-1 rounded-full p-1">
+            <Button
+              variant={mode === "password" ? "primary" : "ghost"}
+              onClick={() => setMode("password")}
+              data-testid="login-mode-password"
+              className="flex-1 rounded-full"
+            >
+              Password
+            </Button>
+            <Button
+              variant={mode === "otp" ? "primary" : "ghost"}
+              onClick={() => setMode("otp")}
+              data-testid="login-mode-otp"
+              className="flex-1 rounded-full"
+            >
+              Email code
+            </Button>
+          </div>
 
-          {mode === "otp" && step === "code" && (
-            <Field label="6-digit code">
+          <div className="mt-6 space-y-4">
+            <Field label="Email" error={undefined}>
               <input
-                type="text"
-                inputMode="numeric"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="123456"
-                className={`${inputClass} tnum tracking-[0.3em]`}
-                data-testid="login-code"
-                autoComplete="one-time-code"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className={inputClass}
+                data-testid="login-email"
+                autoComplete="email"
               />
             </Field>
-          )}
 
-          {mode === "password" && (
-            <>
-              <Field label="Password">
+            {mode === "otp" && step === "code" && (
+              <Field label="6-digit code">
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={inputClass}
-                  data-testid="login-password"
-                  autoComplete={auth === "signup" ? "new-password" : "current-password"}
+                  type="text"
+                  inputMode="numeric"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="123456"
+                  className={`${inputClass} tnum tracking-[0.3em]`}
+                  data-testid="login-code"
+                  autoComplete="one-time-code"
                 />
               </Field>
-              {auth === "signup" && (
-                <Field label="Confirm password">
+            )}
+
+            {mode === "password" && (
+              <>
+                <Field label="Password">
                   <input
                     type="password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className={inputClass}
-                    data-testid="login-confirm-password"
-                    autoComplete="new-password"
+                    data-testid="login-password"
+                    autoComplete={auth === "signup" ? "new-password" : "current-password"}
                   />
                 </Field>
-              )}
-            </>
-          )}
-
-          {error && <p className="text-sm text-critical">{error}</p>}
-          {info && <p className="text-sm text-low">{info}</p>}
-
-          {mode === "otp" && step === "email" && (
-            <Button
-              onClick={sendOtp}
-              disabled={busy || !email.includes("@")}
-              data-testid="login-send-code"
-              className="w-full"
-            >
-              {busy ? "Sending…" : "Send code"}
-            </Button>
-          )}
-          {mode === "otp" && step === "code" && (
-            <Button
-              onClick={verifyOtp}
-              disabled={busy || code.length !== 6}
-              data-testid="login-verify"
-              className="w-full"
-            >
-              {busy ? "Verifying…" : "Verify and sign in"}
-            </Button>
-          )}
-          {mode === "password" && auth === "signin" && (
-            <Button
-              onClick={signInPassword}
-              disabled={busy || !email.includes("@") || !password}
-              data-testid="login-signin"
-              className="w-full"
-            >
-              {busy ? "Signing in…" : "Sign in"}
-            </Button>
-          )}
-          {mode === "password" && auth === "signup" && (
-            <Button
-              onClick={signUp}
-              disabled={busy || !email.includes("@") || !password || !confirm}
-              data-testid="login-signup"
-              className="w-full"
-            >
-              {busy ? "Creating account…" : "Create account"}
-            </Button>
-          )}
-        </div>
-
-        {mode === "password" && (
-          <p className="mt-4 text-center text-sm text-slate-muted">
-            {auth === "signin" ? (
-              <>
-                New citizen?{" "}
-                <button
-                  type="button"
-                  onClick={() => setAuth("signup")}
-                  data-testid="login-goto-signup"
-                  className="font-medium text-teal underline underline-offset-2"
-                >
-                  Create an account
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setAuth("signin")}
-                  data-testid="login-goto-signin"
-                  className="font-medium text-teal underline underline-offset-2"
-                >
-                  Sign in
-                </button>
+                {auth === "signup" && (
+                  <Field label="Confirm password">
+                    <input
+                      type="password"
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
+                      className={inputClass}
+                      data-testid="login-confirm-password"
+                      autoComplete="new-password"
+                    />
+                  </Field>
+                )}
               </>
             )}
-          </p>
-        )}
+
+            {error && (
+              <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+                {error}
+              </p>
+            )}
+            {info && (
+              <p className="rounded-xl bg-low-bg px-3.5 py-2.5 text-sm font-medium text-low">
+                {info}
+              </p>
+            )}
+
+            {mode === "otp" && step === "email" && (
+              <Button
+                onClick={sendOtp}
+                disabled={busy || !email.includes("@")}
+                data-testid="login-send-code"
+                className="w-full"
+              >
+                {busy ? "Sending…" : "Send code"}
+              </Button>
+            )}
+            {mode === "otp" && step === "code" && (
+              <Button
+                onClick={verifyOtp}
+                disabled={busy || code.length !== 6}
+                data-testid="login-verify"
+                className="w-full"
+              >
+                {busy ? "Verifying…" : "Verify and sign in"}
+              </Button>
+            )}
+            {mode === "password" && auth === "signin" && (
+              <Button
+                onClick={signInPassword}
+                disabled={busy || !email.includes("@") || !password}
+                data-testid="login-signin"
+                className="w-full"
+              >
+                {busy ? "Signing in…" : "Sign in"}
+              </Button>
+            )}
+            {mode === "password" && auth === "signup" && (
+              <Button
+                onClick={signUp}
+                disabled={busy || !email.includes("@") || !password || !confirm}
+                data-testid="login-signup"
+                className="w-full"
+              >
+                {busy ? "Creating account…" : "Create account"}
+              </Button>
+            )}
+          </div>
+
+          {mode === "password" && (
+            <p className="mt-5 text-center text-sm text-slate-muted">
+              {auth === "signin" ? (
+                <>
+                  New citizen?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setAuth("signup")}
+                    data-testid="login-goto-signup"
+                    className="font-semibold text-indigo underline underline-offset-2 hover:text-violet"
+                  >
+                    Create an account
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setAuth("signin")}
+                    data-testid="login-goto-signin"
+                    className="font-semibold text-indigo underline underline-offset-2 hover:text-violet"
+                  >
+                    Sign in
+                  </button>
+                </>
+              )}
+            </p>
+          )}
+        </div>
+        <p className="mt-4 text-center text-xs leading-5 text-slate-muted">
+          Report a civic issue in Bengaluru — AI suggests the right department,
+          you confirm it.
+        </p>
       </div>
     </div>
   );

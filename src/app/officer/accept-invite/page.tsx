@@ -9,8 +9,11 @@ export default function AcceptInvitePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
-          <p className="text-sm text-slate-muted">Loading invite…</p>
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <div className="glass w-full max-w-md rounded-3xl p-6">
+            <div className="h-5 w-2/3 animate-pulse rounded bg-indigo/10" />
+            <p className="mt-3 text-sm text-slate-muted">Loading invite…</p>
+          </div>
         </div>
       }
     >

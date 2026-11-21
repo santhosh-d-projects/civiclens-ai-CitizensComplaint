@@ -9,8 +9,10 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
-          <p className="text-sm text-slate-muted">Loading sign-in…</p>
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <div className="glass w-full max-w-md rounded-3xl p-6 text-center">
+            <p className="text-sm text-slate-muted">Loading sign-in…</p>
+          </div>
         </div>
       }
     >

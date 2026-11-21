@@ -18,18 +18,18 @@ export default async function CitizenLayout({
 
   const name = session.profile.full_name ?? session.email ?? "Citizen";
   return (
-    <div className="min-h-screen bg-canvas text-navy-ink">
-      <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <div className="min-h-screen text-navy-ink">
+      <header className="glass sticky top-0 z-40 border-b border-line/60">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <Link href="/citizen" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded bg-navy text-lg font-bold text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo to-violet text-lg font-extrabold text-white shadow-[0_8px_20px_rgba(79,70,229,0.35)]">
               S
             </span>
             <span>
               <span className="block text-lg leading-none font-bold">
-                Complaint-Sathi
+                Complaint-<span className="text-gradient">Sathi</span>
               </span>
-              <span className="mt-0.5 block text-xs text-slate-muted">
+              <span className="mt-1 block text-xs font-medium text-slate-muted">
                 Citizen Portal · Bengaluru
               </span>
             </span>
@@ -37,7 +37,7 @@ export default async function CitizenLayout({
           <CitizenNav name={name} />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:py-10">{children}</main>
     </div>
   );
 }

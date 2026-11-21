@@ -92,3 +92,46 @@
   the final report, never committed).
 - Demo officers + citizens + ~15 complaints: `scripts/seed-demo.ts`
   (needs the service-role key).
+
+## 2026-11-21 12:51 — Full glassmorphism redesign (user order, overrides Civic Precision)
+- The user supplied stitch_complaint_sathi_civic_redesign.zip (7 new Stitch
+  screens + Civic Glass System dark + Civic Glass Light design systems) and
+  ordered a complete redesign of ALL pages to premium glassmorphism
+  (indigo/violet/midnight navy/teal, Plus Jakarta Sans + Inter, frosted
+  glass, backdrop blur). This OVERRIDES the master prompt's "do NOT redesign
+  the identity / keep Civic Precision" rule — the user's latest instruction
+  wins. Business logic, auth, DB, APIs, routes, data-testids unchanged.
+- Foundation (Jarvis): globals.css tokens remapped (old names kept so
+  un-redesigned pages still render), layout.tsx loads Plus Jakarta Sans +
+  Inter + JetBrains Mono with a fixed ambient-glow layer, ui.tsx restyled
+  (gradient primary buttons, GlassCard/StatCard/PageHeader/Chip, glass
+  Modal/Drawer/inputs). Page redesigns delegated to three subagents
+  (citizen / officer / admin+public) with strict no-logic-change rules.
+- Reference screens contain FABRICATED content (94.8% SLA, 198 wards,
+  "98.4% routing accuracy", "45,000 resolved", ISO/Aadhaar/laws wording) —
+  subagents were told never to copy it; only real DB data. No voice button
+  anywhere (ASR not built; browser speech API forbidden by V2 §8b).
+
+## 2026-11-21 13:00 — Exact-duplicate complaint detection (user order)
+- Rule: an exact duplicate (same citizen, same ward, same category,
+  identical description after lowercase + whitespace normalisation, within
+  7 days, not closed) is REJECTED with a 409 DUPLICATE_COMPLAINT error
+  naming the existing ticket; NO new complaint and NO new ticket number are
+  generated. Enforced in `create_complaint` (migration
+  03_duplicate_guard.sql) BEFORE the INSERT, so complaint_seq never
+  advances. The API route parses `DUPLICATE_COMPLAINT:<ticket>:<uuid>` and
+  returns existing_ticket_no + existing_complaint_id for the UI link.
+- Scope is per-citizen by design: a different citizen reporting the same
+  issue is a separate, legitimate complaint. Normalisation is Unicode-safe
+  (keeps Kannada/Hindi script); punctuation-only differences do NOT match.
+- Verified live: re-submitting "main water pipe burst, road flooded" as
+  citizen1 raised DUPLICATE_COMPLAINT:CS-1023; a differently-worded
+  complaint created CS-1026 (deleted afterwards; count back to 16).
+
+## 2026-11-21 12:43 — Resolution workflow visibility (user order)
+- Officer flow already enforced status + resolution note (resolved requires
+  note via officer_update_complaint) + after-work photos
+  (resolution_photo_paths). The citizen detail page already had the data;
+  the redesign makes it PROMINENT: a Resolution section with the note, the
+  after-work photos, and the status timeline — so citizens can see the staff
+  did the work. Verified end to end in the next smoke test.

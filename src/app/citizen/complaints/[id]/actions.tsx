@@ -32,10 +32,10 @@ export function FeedbackForm({ complaintId }: { complaintId: string }) {
   }
 
   if (done) {
-    return <p className="text-sm text-low">Thanks for your feedback.</p>;
+    return <p className="text-sm font-medium text-low">Thanks for your feedback.</p>;
   }
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <Field label="Rate the resolution">
         <div className="flex gap-2" role="radiogroup" aria-label="Rating out of 5">
           {[1, 2, 3, 4, 5].map((n) => (
@@ -46,10 +46,10 @@ export function FeedbackForm({ complaintId }: { complaintId: string }) {
               aria-checked={rating === n}
               onClick={() => setRating(n)}
               data-testid={`feedback-star-${n}`}
-              className={`min-h-[44px] min-w-[44px] rounded border text-sm font-bold ${
+              className={`min-h-[44px] min-w-[44px] rounded-xl border text-sm font-bold transition-all ${
                 rating === n
-                  ? "border-teal bg-teal-soft text-teal"
-                  : "border-line bg-white text-navy-ink hover:bg-slate-50"
+                  ? "border-transparent bg-gradient-to-br from-indigo to-violet text-white shadow-[0_6px_14px_rgba(79,70,229,0.35)]"
+                  : "glass text-navy-ink hover:bg-white/90"
               }`}
             >
               {n}
@@ -68,7 +68,11 @@ export function FeedbackForm({ complaintId }: { complaintId: string }) {
           data-testid="feedback-comment"
         />
       </Field>
-      {error && <p className="text-sm text-critical">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+          {error}
+        </p>
+      )}
       <Button
         onClick={() => void submit()}
         disabled={busy}
@@ -115,13 +119,17 @@ export function ReopenButton({ complaintId }: { complaintId: string }) {
     );
   }
   return (
-    <div className="space-y-2">
-      <p className="text-sm">
+    <div className="space-y-3">
+      <p className="text-sm leading-6 text-navy-ink">
         Reopen this complaint? The department will see it again as an open
         case.
       </p>
-      {error && <p className="text-sm text-critical">{error}</p>}
-      <div className="flex gap-2">
+      {error && (
+        <p role="alert" className="rounded-xl bg-critical-bg px-3.5 py-2.5 text-sm font-medium text-critical">
+          {error}
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="danger"
           onClick={() => void reopen()}

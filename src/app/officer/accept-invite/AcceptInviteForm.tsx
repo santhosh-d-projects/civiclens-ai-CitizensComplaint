@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Field, inputClass } from "@/components/ui";
+import { Button, Field, GlassCard, inputClass } from "@/components/ui";
 
 function strength(password: string): { label: string; checks: string[] } {
   const checks: string[] = [];
@@ -16,6 +16,14 @@ function strength(password: string): { label: string; checks: string[] } {
   const label =
     checks.length >= 4 ? "Strong" : checks.length >= 2 ? "Good" : password ? "Weak" : "";
   return { label, checks };
+}
+
+function InviteShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center px-4 py-8">
+      <GlassCard className="w-full max-w-md p-6 sm:p-8">{children}</GlassCard>
+    </div>
+  );
 }
 
 export default function AcceptInviteForm() {
@@ -56,103 +64,117 @@ export default function AcceptInviteForm() {
 
   if (!token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
-        <div className="w-full max-w-md rounded-lg border border-line bg-white p-6">
-          <h1 className="text-xl font-semibold">Invalid invite link</h1>
-          <p className="mt-2 text-sm text-slate-muted">
-            This page needs the invite link from your email. Ask the
-            administrator to resend your officer invite.
-          </p>
-        </div>
-      </div>
+      <InviteShell>
+        <h1 className="text-xl font-bold text-navy-ink">Invalid invite link</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-muted">
+          This page needs the invite link from your email. Ask the
+          administrator to resend your officer invite.
+        </p>
+      </InviteShell>
     );
   }
 
   if (done) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
-        <div className="w-full max-w-md rounded-lg border border-line bg-white p-6">
-          <h1 className="text-xl font-semibold">Setup complete</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-muted">
-            Your password is set. Sign in to open your officer desk. If your
-            department has not been activated yet, you will see a holding page
-            until the administrator activates it.
-          </p>
-          <div className="mt-5">
-            <Button onClick={() => router.push("/login")} data-testid="invite-done-login" className="w-full">
-              Go to sign in
-            </Button>
-          </div>
+      <InviteShell>
+        <h1 className="text-xl font-bold text-navy-ink">Setup complete</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-muted">
+          Your password is set. Sign in to open your officer desk. If your
+          department has not been activated yet, you will see a holding page
+          until the administrator activates it.
+        </p>
+        <div className="mt-5">
+          <Button onClick={() => router.push("/login")} data-testid="invite-done-login" className="w-full">
+            Go to sign in
+          </Button>
         </div>
-      </div>
+      </InviteShell>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-8">
-      <div className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold text-slate-muted">Complaint-Sathi · Officer Desk</p>
-        <h1 className="mt-2 text-xl font-semibold">Set your officer password</h1>
-        <p className="mt-1 text-sm text-slate-muted">
-          This invite link is single-use and expires 48 hours after it was
-          sent. Your password is stored securely and never emailed.
-        </p>
+    <InviteShell>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">
+        Complaint-Sathi · Officer Desk
+      </p>
+      <h1 className="mt-2 text-2xl font-bold text-navy-ink">Set your officer password</h1>
+      <p className="mt-1 text-sm leading-6 text-slate-muted">
+        This invite link is single-use and expires 48 hours after it was
+        sent. Your password is stored securely and never emailed.
+      </p>
 
-        <div className="mt-5 space-y-4">
-          <Field label="Create password" hint="At least 8 characters.">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClass}
-              data-testid="invite-password"
-              autoComplete="new-password"
-            />
-          </Field>
-          {password && (
-            <p className="text-xs text-slate-muted" data-testid="invite-strength">
-              Password strength: <strong>{s.label || "Weak"}</strong>
+      <div className="mt-6 space-y-4">
+        <Field label="Create password" hint="At least 8 characters.">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={inputClass}
+            data-testid="invite-password"
+            autoComplete="new-password"
+          />
+        </Field>
+        {password && (
+          <div>
+            <div className="flex gap-1" aria-hidden="true">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-full ${
+                    i < s.checks.length
+                      ? "bg-gradient-to-r from-indigo to-violet"
+                      : "bg-slate-200"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-slate-muted" data-testid="invite-strength">
+              Password strength: <strong className="text-navy-ink">{s.label || "Weak"}</strong>
               {s.checks.length > 0 ? ` — ${s.checks.join(", ")}` : ""}
             </p>
-          )}
-          <Field label="Confirm password">
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className={inputClass}
-              data-testid="invite-confirm-password"
-              autoComplete="new-password"
-            />
-          </Field>
-          <label className="flex min-h-[44px] items-start gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-1 h-4 w-4"
-              data-testid="invite-terms"
-            />
-            <span>
-              I will handle citizen grievances per the published standards, and
-              I understand every action I take is logged in the tamper-evident
-              audit trail.
-            </span>
-          </label>
-          {password && confirm && password !== confirm && (
-            <p className="text-sm text-critical">Passwords do not match.</p>
-          )}
-          {error && <p className="text-sm text-critical">{error}</p>}
-          <Button
-            onClick={submit}
-            disabled={busy || !valid}
-            data-testid="invite-submit"
-            className="w-full"
-          >
-            {busy ? "Setting up…" : "Complete setup & open my desk"}
-          </Button>
-        </div>
+          </div>
+        )}
+        <Field label="Confirm password">
+          <input
+            type="password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            className={inputClass}
+            data-testid="invite-confirm-password"
+            autoComplete="new-password"
+          />
+        </Field>
+        <label className="flex min-h-[44px] items-start gap-2 text-sm text-navy-ink">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-1 h-4 w-4 accent-indigo"
+            data-testid="invite-terms"
+          />
+          <span>
+            I will handle citizen grievances per the published standards, and
+            I understand every action I take is logged in the tamper-evident
+            audit trail.
+          </span>
+        </label>
+        {password && confirm && password !== confirm && (
+          <p className="text-sm font-medium text-critical">Passwords do not match.</p>
+        )}
+        {error && (
+          <p className="rounded-xl border border-critical/30 bg-critical-bg px-3 py-2.5 text-sm font-medium text-critical">
+            {error}
+          </p>
+        )}
+        <Button
+          onClick={submit}
+          disabled={busy || !valid}
+          data-testid="invite-submit"
+          className="w-full"
+        >
+          {busy ? "Setting up…" : "Complete setup & open my desk"}
+        </Button>
       </div>
-    </div>
+    </InviteShell>
   );
 }

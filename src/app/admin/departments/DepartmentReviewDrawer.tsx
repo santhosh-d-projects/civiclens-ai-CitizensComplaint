@@ -190,12 +190,12 @@ export default function DepartmentReviewDrawer({
     >
       {loading && <p className="text-sm text-slate-muted">Loading…</p>}
       {error && (
-        <p className="rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
+        <p className="rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
           {error}
         </p>
       )}
       {toast && (
-        <p className="mb-4 rounded border border-low/30 bg-low-bg px-4 py-3 text-sm text-low">
+        <p className="mb-4 rounded-2xl border border-low/30 bg-low-bg px-4 py-3 text-sm text-low">
           {toast}
         </p>
       )}
@@ -212,7 +212,7 @@ export default function DepartmentReviewDrawer({
           {(detail.duplicates.emailDuplicate ||
             detail.duplicates.nameWardOverlap.length > 0) && (
             <div
-              className="rounded border border-high/40 bg-high-bg px-4 py-3 text-sm"
+              className="rounded-2xl border border-high/40 bg-high-bg px-4 py-3 text-sm shadow-[0_8px_24px_rgba(234,88,12,0.12)]"
               data-testid="duplicate-warning"
             >
               <p className="font-semibold text-high">Similar application detected</p>
@@ -228,8 +228,8 @@ export default function DepartmentReviewDrawer({
             </div>
           )}
 
-          <section>
-            <h3 className="text-sm font-semibold">Department information</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="text-sm font-bold">Department information</h3>
             <dl className="mt-2 space-y-1 text-sm">
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Name</dt><dd className="font-medium">{d.name}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Email</dt><dd>{d.official_email}</dd></div>
@@ -244,14 +244,14 @@ export default function DepartmentReviewDrawer({
             </dl>
           </section>
 
-          <section>
-            <h3 className="text-sm font-semibold">Officer</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="text-sm font-bold">Officer</h3>
             {detail.officers.length === 0 ? (
               <p className="mt-1 text-sm text-slate-muted">No officer assigned yet.</p>
             ) : (
               <ul className="mt-2 space-y-2 text-sm">
                 {detail.officers.map((o) => (
-                  <li key={o.id} className="rounded border border-line px-3 py-2">
+                  <li key={o.id} className="rounded-xl border border-line bg-white/70 px-3 py-2">
                     <p className="font-medium">{o.name}</p>
                     <p className="text-slate-muted">{o.email} · {o.phone ?? "—"}</p>
                     <p className="text-xs text-slate-muted">
@@ -263,8 +263,8 @@ export default function DepartmentReviewDrawer({
             )}
           </section>
 
-          <section>
-            <h3 className="text-sm font-semibold">
+          <section className="glass rounded-2xl p-4">
+            <h3 className="text-sm font-bold">
               Documents ({detail.documents.filter((x) => x.verified_at).length} of {detail.documents.length} verified)
             </h3>
             {detail.documents.length === 0 ? (
@@ -272,7 +272,7 @@ export default function DepartmentReviewDrawer({
             ) : (
               <ul className="mt-2 space-y-2">
                 {detail.documents.map((doc) => (
-                  <li key={doc.id} className="flex items-center justify-between gap-3 rounded border border-line px-3 py-2 text-sm">
+                  <li key={doc.id} className="flex items-center justify-between gap-3 rounded-xl border border-line bg-white/70 px-3 py-2 text-sm">
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{doc.name}</span>
                       <span className="block truncate text-xs text-slate-muted">{doc.file_path}</span>
@@ -284,7 +284,7 @@ export default function DepartmentReviewDrawer({
                         disabled={busy}
                         onChange={(e) => verifyDoc(doc.id, e.target.checked)}
                         data-testid={`doc-verify-${doc.id}`}
-                        className="h-5 w-5 accent-teal"
+                        className="h-5 w-5 accent-indigo"
                       />
                       <span className="text-xs font-semibold">Verified</span>
                     </label>
@@ -294,14 +294,14 @@ export default function DepartmentReviewDrawer({
             )}
           </section>
 
-          <section>
-            <h3 className="text-sm font-semibold">History</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="text-sm font-bold">History</h3>
             {detail.history.length === 0 ? (
               <p className="mt-1 text-sm text-slate-muted">No recorded events yet.</p>
             ) : (
               <ul className="mt-2 space-y-2 text-sm">
                 {detail.history.map((h) => (
-                  <li key={h.seq} className="border-l-2 border-line pl-3">
+                  <li key={h.seq} className="border-l-2 border-indigo/30 pl-3">
                     <p className="font-medium">{h.action}</p>
                     <p className="text-xs text-slate-muted">
                       {new Date(h.ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
@@ -349,8 +349,8 @@ export default function DepartmentReviewDrawer({
             </p>
           )}
           {d.status === "approved" && (
-            <section className="border-t border-line pt-4">
-              <h3 className="text-sm font-semibold">Activate department</h3>
+            <section className="glass rounded-2xl border-indigo/25 p-4">
+              <h3 className="text-sm font-bold">Activate department</h3>
               <p className="mt-1 text-sm text-slate-muted">
                 Activation enables officer login and lets citizens send complaints
                 to this department. It needs all documents verified and an officer
@@ -423,7 +423,7 @@ export default function DepartmentReviewDrawer({
           )}
 
           {resubmitToken && (
-            <div className="rounded border border-line bg-slate-50 px-4 py-3 text-sm">
+            <div className="rounded-2xl border border-line bg-white/70 px-4 py-3 text-sm">
               <p className="font-semibold">Resubmission token (share with the applicant)</p>
               <p className="mt-1 break-all font-mono text-xs">{resubmitToken}</p>
               <Button
@@ -437,7 +437,7 @@ export default function DepartmentReviewDrawer({
             </div>
           )}
           {inviteUrl && (
-            <div className="rounded border border-low/30 bg-low-bg px-4 py-3 text-sm">
+            <div className="rounded-2xl border border-low/30 bg-low-bg px-4 py-3 text-sm">
               <p className="font-semibold text-low">Officer invite link (send to the officer)</p>
               <p className="mt-1 break-all font-mono text-xs">{inviteUrl}</p>
               <Button

@@ -7,7 +7,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Field, inputClass } from "@/components/ui";
+import { Button, Field, GlassCard, inputClass } from "@/components/ui";
 
 const NEXT_STATUS: Record<string, { value: string; label: string }[]> = {
   submitted: [
@@ -130,20 +130,20 @@ export default function UpdateForm({
 
   if (options.length === 0) {
     return (
-      <section className="rounded-lg border border-line bg-white p-5">
-        <h3 className="text-sm font-semibold">Update status</h3>
-        <p className="mt-2 text-sm text-slate-muted">
+      <GlassCard className="p-5 sm:p-6">
+        <h3 className="text-sm font-bold text-navy-ink">Update status</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-muted">
           This complaint is {currentStatus.replaceAll("_", " ")} — no further
           officer action is available here.
         </p>
-      </section>
+      </GlassCard>
     );
   }
 
   return (
-    <section className="rounded-lg border border-line bg-white p-5">
-      <h3 className="text-sm font-semibold">Update status</h3>
-      <div className="mt-3 space-y-4">
+    <GlassCard className="p-5 sm:p-6">
+      <h3 className="text-sm font-bold text-navy-ink">Update status</h3>
+      <div className="mt-4 space-y-4">
         <Field label="New status">
           <select
             value={status}
@@ -190,8 +190,16 @@ export default function UpdateForm({
             </p>
           )}
         </Field>
-        {error && <p className="text-sm text-critical">{error}</p>}
-        {success && <p className="text-sm text-low">{success}</p>}
+        {error && (
+          <p className="rounded-xl border border-critical/30 bg-critical-bg px-3 py-2.5 text-sm font-medium text-critical">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="rounded-xl border border-low/30 bg-low-bg px-3 py-2.5 text-sm font-medium text-low">
+            {success}
+          </p>
+        )}
         <Button
           onClick={submit}
           disabled={busy || !status}
@@ -201,6 +209,6 @@ export default function UpdateForm({
           {busy ? "Saving…" : "Save update"}
         </Button>
       </div>
-    </section>
+    </GlassCard>
   );
 }

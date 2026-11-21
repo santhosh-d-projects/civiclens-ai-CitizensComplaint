@@ -6,7 +6,7 @@
 import Link from "next/link";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { StatusPill } from "@/components/ui";
+import { StatusPill, GlassCard } from "@/components/ui";
 
 const COPY: Record<
   string,
@@ -130,30 +130,32 @@ export default async function BlockedPage({
   const copy = COPY[status] ?? COPY.pending;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
-      <div className="w-full max-w-xl rounded-lg border border-line bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold text-slate-muted">Complaint-Sathi · Officer Desk</p>
-        <div className="mt-3 flex items-center gap-3">
-          <h1 className="text-xl font-semibold">{copy.title}</h1>
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <GlassCard className="w-full max-w-xl p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo">
+          Complaint-Sathi · Officer Desk
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold text-navy-ink">{copy.title}</h1>
           <StatusPill status={status} />
         </div>
         {departmentName && (
-          <p className="mt-1 text-sm text-slate-muted">{departmentName}</p>
+          <p className="mt-1 text-sm font-semibold text-navy-ink">{departmentName}</p>
         )}
         <p className="mt-3 text-sm leading-6 text-navy-ink">{copy.body}</p>
         {reason && (
-          <div className="mt-4 rounded border border-line bg-canvas p-3">
+          <div className="mt-4 rounded-2xl border border-line/60 bg-white/60 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-muted">
               Recorded reason
             </p>
-            <p className="mt-1 text-sm">{reason}</p>
+            <p className="mt-1 text-sm leading-6 text-navy-ink">{reason}</p>
           </div>
         )}
         <p className="mt-4 text-sm leading-6 text-slate-muted">{copy.next}</p>
 
         {status === "suspended" && (
-          <div className="mt-5">
-            <h2 className="text-sm font-semibold">
+          <div className="mt-6">
+            <h2 className="text-sm font-bold text-navy-ink">
               Where your open complaints went
             </h2>
             {transfers.length === 0 ? (
@@ -161,12 +163,12 @@ export default async function BlockedPage({
                 No open complaints were transferred (none were open at suspension).
               </p>
             ) : (
-              <ul className="mt-2 divide-y divide-line rounded border border-line">
+              <ul className="mt-3 divide-y divide-line/60 overflow-hidden rounded-2xl border border-line/60 bg-white/60">
                 {transfers.map((t) => (
-                  <li key={t.complaint_id} className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm">
-                    <span className="tnum font-semibold">{t.ticket_no}</span>
+                  <li key={t.complaint_id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                    <span className="tnum font-semibold text-navy-ink">{t.ticket_no}</span>
                     <span className="text-slate-muted">moved to</span>
-                    <span className="text-right font-semibold">{t.to_name}</span>
+                    <span className="text-right font-semibold text-navy-ink">{t.to_name}</span>
                   </li>
                 ))}
               </ul>
@@ -174,23 +176,23 @@ export default async function BlockedPage({
           </div>
         )}
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/login"
             data-testid="blocked-go-login"
-            className="inline-flex min-h-[44px] items-center rounded bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-hover"
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(79,70,229,0.45)]"
           >
             Back to sign in
           </Link>
           <Link
             href="/"
             data-testid="blocked-go-home"
-            className="inline-flex min-h-[44px] items-center rounded border border-line bg-white px-4 py-2 text-sm font-semibold text-navy-ink hover:bg-slate-50"
+            className="glass inline-flex min-h-[44px] items-center rounded-xl px-4 py-2 text-sm font-semibold text-navy-ink transition-colors hover:bg-white/90"
           >
             Public portal
           </Link>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

@@ -20,6 +20,12 @@ in-progress with note. Issues found and fixed in the same session:
 - Ticket URLs use the complaint UUID, not the CS number — by design; a guessed
   `/citizen/complaints/CS-1023` URL 404s.
 
+## Fixed 2026-11-21 ~13:00 — exact-duplicate detection
+- Re-submitting the exact same complaint (same citizen/ward/category,
+  identical description, 7 days) now returns 409 DUPLICATE_COMPLAINT with
+  the existing ticket (e.g. CS-1023) and creates nothing. Verified live
+  against create_complaint; test ticket CS-1026 deleted afterwards.
+
 ## Not finished / limitations (stated plainly)
 - **Citizen login is Supabase email + password, not Firebase.** V2 STEP 0
   asked for Firebase phone OTP; the user corrected it to Firebase *email

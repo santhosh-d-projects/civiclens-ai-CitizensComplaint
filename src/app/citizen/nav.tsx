@@ -21,10 +21,11 @@ export default function CitizenNav({ name }: { name: string }) {
       key={href}
       href={href}
       data-testid={testId}
-      className={`rounded px-3 py-2 text-sm font-semibold ${
+      aria-current={pathname === href ? "page" : undefined}
+      className={`rounded-full px-3.5 py-2 text-sm font-semibold transition-all ${
         pathname === href
-          ? "bg-teal-soft text-teal"
-          : "text-navy hover:bg-slate-100"
+          ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+          : "text-slate-muted hover:bg-white/80 hover:text-navy-ink"
       }`}
     >
       {label}
@@ -32,9 +33,9 @@ export default function CitizenNav({ name }: { name: string }) {
   );
 
   return (
-    <nav className="flex items-center gap-1">
-      <span className="mr-2 hidden text-sm text-slate-muted md:inline">
-        Namaskara, {name}
+    <nav className="flex flex-wrap items-center gap-1">
+      <span className="mr-2 hidden text-sm text-slate-muted lg:inline">
+        Namaskara, <span className="font-semibold text-navy-ink">{name}</span>
       </span>
       {link("/citizen", "Home", "nav-citizen-home")}
       {link("/citizen/report", "Report an issue", "nav-citizen-report")}
@@ -42,7 +43,7 @@ export default function CitizenNav({ name }: { name: string }) {
       <button
         onClick={signOut}
         data-testid="nav-sign-out"
-        className="min-h-[44px] rounded px-3 py-2 text-sm font-semibold text-navy hover:bg-slate-100"
+        className="min-h-[44px] rounded-full px-3.5 py-2 text-sm font-semibold text-slate-muted transition-colors hover:bg-white/80 hover:text-navy-ink"
       >
         Sign out
       </button>

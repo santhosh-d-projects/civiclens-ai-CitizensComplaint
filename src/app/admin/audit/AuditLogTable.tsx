@@ -8,6 +8,7 @@ import {
   Button,
   EmptyState,
   Drawer,
+  GlassCard,
   inputClass,
 } from "@/components/ui";
 
@@ -107,7 +108,7 @@ function ForensicDrawer({
     >
       {loading && <p className="text-sm text-slate-muted">Verifying…</p>}
       {error && (
-        <p className="rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
+        <p className="rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
           {error}
         </p>
       )}
@@ -126,8 +127,8 @@ function ForensicDrawer({
             </span>
           </div>
 
-          <section>
-            <h3 className="font-semibold">Event</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="font-bold">Event</h3>
             <dl className="mt-2 space-y-1">
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Event ID</dt><dd className="font-mono text-xs break-all">{row.event_id}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Time (UTC)</dt><dd className="tnum">{new Date(row.ts).toISOString()}</dd></div>
@@ -141,8 +142,8 @@ function ForensicDrawer({
             </dl>
           </section>
 
-          <section>
-            <h3 className="font-semibold">Signature certificate (Ed25519)</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="font-bold">Signature certificate (Ed25519)</h3>
             {verification.signature.present ? (
               <dl className="mt-2 space-y-1">
                 <div className="flex justify-between gap-4"><dt className="text-slate-muted">Key ID</dt><dd className="font-mono text-xs">{verification.signature.keyId}</dd></div>
@@ -151,7 +152,7 @@ function ForensicDrawer({
                 <div className="flex justify-between gap-4"><dt className="text-slate-muted">Signed at</dt><dd>{verification.signature.signedAt ? new Date(verification.signature.signedAt).toLocaleString("en-IN") : "—"}</dd></div>
                 <div>
                   <dt className="text-slate-muted">Signature value</dt>
-                  <dd className="mt-1 break-all rounded bg-slate-50 p-2 font-mono text-xs">{verification.signature.signature}</dd>
+                  <dd className="mt-1 break-all rounded-xl border border-line bg-white/70 p-2 font-mono text-xs">{verification.signature.signature}</dd>
                   <Button variant="secondary" className="mt-2" onClick={() => copy(verification.signature.signature ?? "", "signature")} data-testid="audit-copy-signature">
                     {copied === "signature" ? "Copied ✓" : "Copy signature"}
                   </Button>
@@ -166,11 +167,11 @@ function ForensicDrawer({
             )}
           </section>
 
-          <section>
-            <h3 className="font-semibold">Verification receipt</h3>
+          <section className="glass rounded-2xl p-4">
+            <h3 className="font-bold">Verification receipt</h3>
             <dl className="mt-2 space-y-1">
-              <div><dt className="text-slate-muted">Record hash (SHA-256)</dt><dd className="mt-1 break-all rounded bg-slate-50 p-2 font-mono text-xs">{verification.record_hash}</dd></div>
-              <div><dt className="text-slate-muted">Previous hash</dt><dd className="mt-1 break-all rounded bg-slate-50 p-2 font-mono text-xs">{verification.prev_hash}</dd></div>
+              <div><dt className="text-slate-muted">Record hash (SHA-256)</dt><dd className="mt-1 break-all rounded-xl border border-line bg-white/70 p-2 font-mono text-xs">{verification.record_hash}</dd></div>
+              <div><dt className="text-slate-muted">Previous hash</dt><dd className="mt-1 break-all rounded-xl border border-line bg-white/70 p-2 font-mono text-xs">{verification.prev_hash}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Chain position</dt><dd className="tnum">#{row.seq}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Hash recomputed</dt><dd className={verification.hash_ok ? "font-semibold text-low" : "font-semibold text-critical"}>{verification.hash_ok ? "Matches" : "MISMATCH"}</dd></div>
               <div className="flex justify-between gap-4"><dt className="text-slate-muted">Previous link</dt><dd className={verification.prev_ok ? "font-semibold text-low" : "font-semibold text-critical"}>{verification.prev_ok ? "Intact" : "BROKEN"}</dd></div>
@@ -185,7 +186,7 @@ function ForensicDrawer({
               href={`/api/admin/audit/${row.seq}/export`}
               download
               data-testid="audit-export-json"
-              className="inline-flex min-h-[44px] items-center rounded border border-line bg-white px-4 py-2 text-sm font-semibold text-navy-ink hover:bg-slate-50"
+              className="glass inline-flex min-h-[44px] items-center rounded-xl px-4 py-2 text-sm font-semibold text-navy-ink transition-colors hover:bg-white/90"
             >
               Export JSON
             </a>
@@ -295,13 +296,13 @@ export default function AuditLogTable() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">{error}</p>
+        <p className="mt-4 rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">{error}</p>
       )}
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-line bg-white">
+      <GlassCard className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead>
-            <tr className="border-b border-line bg-slate-50 text-xs uppercase tracking-wide text-slate-muted">
+            <tr className="border-b border-line bg-white/60 text-xs uppercase tracking-wide text-slate-muted">
               <th className="px-4 py-3">Seq</th>
               <th className="px-4 py-3">Time (IST)</th>
               <th className="px-4 py-3">Actor</th>
@@ -319,7 +320,7 @@ export default function AuditLogTable() {
               <tr><td colSpan={8} className="px-4 py-8"><EmptyState title="No audit events match" body="Try different filters." /></td></tr>
             ) : (
               rows.map((r) => (
-                <tr key={r.seq} className="border-b border-line last:border-0 hover:bg-slate-50">
+                <tr key={r.seq} className="border-b border-line last:border-0 transition-colors hover:bg-indigo/[0.04]">
                   <td className="tnum px-4 py-3">{r.seq}</td>
                   <td className="px-4 py-3 text-slate-muted">{new Date(r.ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</td>
                   <td className="px-4 py-3">{r.actor_role ?? "system"}</td>
@@ -337,7 +338,7 @@ export default function AuditLogTable() {
             )}
           </tbody>
         </table>
-      </div>
+      </GlassCard>
 
       <div className="mt-4 flex items-center gap-3">
         <Button variant="secondary" disabled={page <= 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))} data-testid="audit-prev">← Previous</Button>

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { requireActiveDepartment } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { SeverityBadge, StatusPill, EmptyState } from "@/components/ui";
+import { SeverityBadge, StatusPill, EmptyState, GlassCard, StatCard, PageHeader } from "@/components/ui";
 import { slaLabel, formatDateTime } from "@/app/officer/format";
 import type { Complaint, ComplaintStatus } from "@/lib/database.types";
 
@@ -54,36 +54,38 @@ export default async function OfficerDashboard() {
   }
 
   const cards = [
-    { label: "Open complaints", value: openCount ?? 0, testId: "kpi-open" },
-    { label: "In progress", value: inProgressCount ?? 0, testId: "kpi-in-progress" },
-    { label: "Resolved", value: resolvedCount ?? 0, testId: "kpi-resolved" },
-    { label: "SLA overdue", value: overdueCount ?? 0, testId: "kpi-overdue" },
+    { label: "Open complaints", value: String(openCount ?? 0), tone: "indigo" as const, testId: "kpi-open" },
+    { label: "In progress", value: String(inProgressCount ?? 0), tone: "blue" as const, testId: "kpi-in-progress" },
+    { label: "Resolved", value: String(resolvedCount ?? 0), tone: "green" as const, testId: "kpi-resolved" },
+    { label: "SLA overdue", value: String(overdueCount ?? 0), tone: "red" as const, testId: "kpi-overdue" },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Department Officer Desk</h1>
-      <p className="mt-1 text-sm text-slate-muted">
-        {deptName} · {session.profile.full_name ?? session.email}
-      </p>
+      <PageHeader
+        eyebrow="Officer Desk"
+        title="Department Officer Desk"
+        sub={`${deptName} · ${session.profile.full_name ?? session.email}`}
+      />
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border border-line bg-white p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-muted">{c.label}</p>
-            <p className="tnum mt-1 text-3xl font-semibold" data-testid={c.testId}>
-              {c.value}
-            </p>
-          </div>
+          <StatCard
+            key={c.label}
+            label={c.label}
+            value={c.value}
+            tone={c.tone}
+            testId={c.testId}
+          />
         ))}
       </div>
 
       <div className="mt-8 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Latest complaints</h2>
+        <h2 className="text-lg font-bold text-navy-ink">Latest complaints</h2>
         <Link
           href="/officer/complaints"
           data-testid="dashboard-view-queue"
-          className="text-sm font-semibold text-teal hover:underline"
+          className="rounded-full px-3 py-2 text-sm font-semibold text-indigo transition-colors hover:bg-indigo/5 hover:underline"
         >
           View full queue →
         </Link>
@@ -95,34 +97,36 @@ export default async function OfficerDashboard() {
             body="Complaints citizens confirm for your department will appear here."
           />
         ) : (
-          <ul className="divide-y divide-line rounded-lg border border-line bg-white">
-            {rows.map((c) => {
-              const sla = slaLabel(c.sla_due_at);
-              return (
-                <li key={c.id}>
-                  <Link
-                    href={`/officer/complaints/${c.id}`}
-                    data-testid={`dashboard-complaint-${c.ticket_no}`}
-                    className="flex flex-wrap items-center gap-3 px-4 py-3 hover:bg-slate-50"
-                  >
-                    <span className="tnum text-sm font-semibold">{c.ticket_no}</span>
-                    <SeverityBadge severity={c.severity} />
-                    <StatusPill status={c.status} />
-                    <span className="min-w-0 flex-1 truncate text-sm">{c.title}</span>
-                    <span className="text-xs text-slate-muted">
-                      {c.ward_id ? wards.get(c.ward_id) ?? "" : ""}
-                    </span>
-                    <span
-                      className={`text-xs font-semibold ${sla.tone === "bad" ? "text-critical" : sla.tone === "warn" ? "text-high" : "text-slate-muted"}`}
+          <GlassCard className="overflow-hidden p-0">
+            <ul className="divide-y divide-line/60">
+              {rows.map((c) => {
+                const sla = slaLabel(c.sla_due_at);
+                return (
+                  <li key={c.id}>
+                    <Link
+                      href={`/officer/complaints/${c.id}`}
+                      data-testid={`dashboard-complaint-${c.ticket_no}`}
+                      className="flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors hover:bg-white/70 sm:px-5"
                     >
-                      {sla.text}
-                    </span>
-                    <span className="tnum text-xs text-slate-muted">{formatDateTime(c.created_at)}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                      <span className="tnum text-sm font-semibold text-navy-ink">{c.ticket_no}</span>
+                      <SeverityBadge severity={c.severity} />
+                      <StatusPill status={c.status} />
+                      <span className="min-w-0 flex-1 truncate text-sm text-navy-ink">{c.title}</span>
+                      <span className="text-xs text-slate-muted">
+                        {c.ward_id ? wards.get(c.ward_id) ?? "" : ""}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold ${sla.tone === "bad" ? "text-critical" : sla.tone === "warn" ? "text-high" : "text-slate-muted"}`}
+                      >
+                        {sla.text}
+                      </span>
+                      <span className="tnum text-xs text-slate-muted">{formatDateTime(c.created_at)}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </GlassCard>
         )}
       </div>
     </div>

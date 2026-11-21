@@ -1,16 +1,17 @@
 import NewDepartmentForm from "./NewDepartmentForm";
+import { PageHeader, GlassCard } from "@/components/ui";
 
 export default function NewDepartmentPage() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Create department</h1>
-      <p className="mt-1 text-sm text-slate-muted">
-        Departments created here enter the same review flow as online
-        applications: they stay inactive until approved and activated.
-      </p>
-      <div className="mt-6">
+      <PageHeader
+        eyebrow="Governance"
+        title="Create department"
+        sub="Departments created here enter the same review flow as online applications: they stay inactive until approved and activated."
+      />
+      <GlassCard className="mt-6 max-w-2xl p-6 sm:p-8">
         <NewDepartmentForm />
-      </div>
+      </GlassCard>
     </div>
   );
 }

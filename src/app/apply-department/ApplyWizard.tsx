@@ -109,8 +109,9 @@ export default function ApplyWizard() {
 
   if (submitted) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <p className="text-2xl font-semibold">Application submitted</p>
+      <div className="p-8 text-center">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-teal to-indigo text-2xl font-bold text-white shadow-[0_8px_20px_rgba(13,148,136,0.35)]">✓</span>
+        <p className="mt-4 text-2xl font-bold">Application submitted</p>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-muted">
           Thank you. An administrator will review your application — typical
           turnaround is 3–5 working days. <strong className="text-navy-ink">No login
@@ -121,7 +122,7 @@ export default function ApplyWizard() {
           <Link
             href="/"
             data-testid="apply-done-home"
-            className="inline-flex min-h-[44px] items-center rounded bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-hover"
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-r from-indigo to-violet px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(79,70,229,0.35)] transition-all hover:-translate-y-px"
           >
             Return to portal
           </Link>
@@ -136,8 +137,12 @@ export default function ApplyWizard() {
         {STEPS.map((s, i) => (
           <li
             key={s}
-            className={`rounded-full px-3 py-2 text-xs font-semibold ${
-              i === step ? "bg-navy text-white" : i < step ? "bg-teal-soft text-teal" : "border border-line bg-white text-slate-muted"
+            className={`rounded-full px-3 py-2 text-xs font-semibold transition-all ${
+              i === step
+                ? "bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]"
+                : i < step
+                  ? "bg-teal-soft text-teal"
+                  : "glass text-slate-muted"
             }`}
           >
             {i + 1}. {s}
@@ -146,10 +151,10 @@ export default function ApplyWizard() {
       </ol>
 
       {error && (
-        <p className="mt-4 rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">{error}</p>
+        <p className="mt-4 rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">{error}</p>
       )}
 
-      <div className="mt-6 space-y-5 rounded-lg border border-line bg-white p-6">
+      <div className="mt-6 space-y-5">
         {/* Honeypot — visually hidden, must stay empty. */}
         <input
           type="text"
@@ -173,7 +178,7 @@ export default function ApplyWizard() {
               <legend className="text-xs font-medium tracking-wide text-slate-muted uppercase">Categories this department would serve</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {categories.map((c) => (
-                  <button key={c.id} type="button" onClick={() => toggle(categoryIds, c.id, setCategoryIds)} data-testid={`apply-category-${c.slug}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold ${categoryIds.includes(c.id) ? "border-teal bg-teal-soft text-teal" : "border-line bg-white"}`}>
+                  <button key={c.id} type="button" onClick={() => toggle(categoryIds, c.id, setCategoryIds)} data-testid={`apply-category-${c.slug}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${categoryIds.includes(c.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
                     {c.name}
                   </button>
                 ))}
@@ -186,7 +191,7 @@ export default function ApplyWizard() {
             <legend className="text-xs font-medium tracking-wide text-slate-muted uppercase">Wards served</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {wards.map((w) => (
-                <button key={w.id} type="button" onClick={() => toggle(wardIds, w.id, setWardIds)} data-testid={`apply-ward-${w.id}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold ${wardIds.includes(w.id) ? "border-teal bg-teal-soft text-teal" : "border-line bg-white"}`}>
+                <button key={w.id} type="button" onClick={() => toggle(wardIds, w.id, setWardIds)} data-testid={`apply-ward-${w.id}`} className={`min-h-[44px] rounded-full border px-3 text-sm font-semibold transition-all ${wardIds.includes(w.id) ? "border-transparent bg-gradient-to-r from-indigo to-violet text-white shadow-[0_6px_16px_rgba(79,70,229,0.35)]" : "glass text-navy-ink hover:bg-white/90"}`}>
                   {w.name} <span className="text-xs text-slate-muted">· {w.zone}</span>
                 </button>
               ))}
@@ -227,14 +232,14 @@ export default function ApplyWizard() {
             {uploading && <p className="text-sm text-slate-muted">Uploading…</p>}
             <ul className="space-y-1 text-sm">
               {docs.map((d) => (
-                <li key={d.path} className="flex justify-between gap-2 rounded border border-line px-3 py-2">
+                <li key={d.path} className="flex justify-between gap-2 rounded-xl border border-line bg-white/70 px-3 py-2.5">
                   <span className="truncate">{d.name}</span>
                   <button type="button" onClick={() => setDocs(docs.filter((x) => x.path !== d.path))} className="font-semibold text-critical" data-testid={`apply-doc-remove-${d.path}`}>Remove</button>
                 </li>
               ))}
             </ul>
             <label className="flex items-start gap-2 text-sm">
-              <input type="checkbox" checked={affirmed} onChange={(e) => setAffirmed(e.target.checked)} className="mt-1 h-5 w-5 accent-teal" data-testid="apply-affirm" />
+              <input type="checkbox" checked={affirmed} onChange={(e) => setAffirmed(e.target.checked)} className="mt-1 h-5 w-5 accent-indigo" data-testid="apply-affirm" />
               <span>
                 I confirm the details above are accurate and that this
                 department will have no login access until an administrator
@@ -244,7 +249,7 @@ export default function ApplyWizard() {
           </>
         )}
 
-        <div className="flex flex-wrap justify-between gap-2 border-t border-line pt-4">
+        <div className="flex flex-wrap justify-between gap-2 border-t border-line pt-5">
           <Button variant="secondary" disabled={step === 0 || busy} onClick={() => setStep((s) => Math.max(0, s - 1))} data-testid="apply-back">
             ← Back
           </Button>

@@ -2,7 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button, StatusPill, EmptyState, inputClass } from "@/components/ui";
+import { Button, StatusPill, EmptyState, Chip, GlassCard, inputClass } from "@/components/ui";
 import DepartmentReviewDrawer from "./DepartmentReviewDrawer";
 
 type DeptRow = {
@@ -74,39 +74,30 @@ export default function DepartmentsTable() {
     <div className="mt-6">
       <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Department status">
         {tabs.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => {
-              setTab(t.id);
-              setPage(1);
-            }}
-            data-testid={`departments-tab-${t.id}`}
-            className={`min-h-[44px] rounded-full px-4 py-2 text-sm font-semibold ${
-              tab === t.id
-                ? "bg-navy text-white"
-                : "bg-white text-navy-ink border border-line hover:bg-slate-50"
-            }`}
-          >
-            {t.label}
-          </button>
+          <span key={t.id} role="tab" aria-selected={tab === t.id}>
+            <Chip
+              active={tab === t.id}
+              onClick={() => {
+                setTab(t.id);
+                setPage(1);
+              }}
+              testId={`departments-tab-${t.id}`}
+            >
+              {t.label}
+            </Chip>
+          </span>
         ))}
         {tab === "approved" && (
           <span className="ml-2 flex gap-1">
             {(["all", "active", "suspended"] as const).map((c) => (
-              <button
+              <Chip
                 key={c}
+                active={chip === c}
                 onClick={() => setChip(c)}
-                data-testid={`departments-chip-${c}`}
-                className={`min-h-[36px] rounded-full px-3 text-xs font-semibold ${
-                  chip === c
-                    ? "bg-teal text-white"
-                    : "bg-white text-navy-ink border border-line"
-                }`}
+                testId={`departments-chip-${c}`}
               >
                 {c === "all" ? "All" : c.charAt(0).toUpperCase() + c.slice(1)}
-              </button>
+              </Chip>
             ))}
           </span>
         )}
@@ -127,15 +118,15 @@ export default function DepartmentsTable() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
+        <p className="mt-4 rounded-2xl border border-critical/30 bg-critical-bg px-4 py-3 text-sm text-critical">
           {error}
         </p>
       )}
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-line bg-white">
+      <GlassCard className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead>
-            <tr className="border-b border-line bg-slate-50 text-xs uppercase tracking-wide text-slate-muted">
+            <tr className="border-b border-line bg-white/60 text-xs uppercase tracking-wide text-slate-muted">
               <th className="px-4 py-3">Department</th>
               <th className="px-4 py-3">Applicant</th>
               <th className="px-4 py-3">Service area</th>
@@ -166,7 +157,7 @@ export default function DepartmentsTable() {
                 <tr
                   key={d.id}
                   onClick={() => setSelectedId(d.id)}
-                  className="cursor-pointer border-b border-line last:border-0 hover:bg-slate-50"
+                  className="cursor-pointer border-b border-line last:border-0 transition-colors hover:bg-indigo/[0.04]"
                   data-testid={`department-row-${d.id}`}
                 >
                   <td className="px-4 py-3 font-semibold">{d.name}</td>
@@ -189,7 +180,7 @@ export default function DepartmentsTable() {
             )}
           </tbody>
         </table>
-      </div>
+      </GlassCard>
 
       <div className="mt-4 flex items-center gap-3">
         <Button
