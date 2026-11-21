@@ -201,3 +201,37 @@
 - Not verified live with a real voice: the cloud browser has no microphone,
   so only the button rendering + graceful error states can be checked there.
   Real transcription must be demoed on the user's laptop (Chrome + mic).
+
+## 2026-11-21 ~13:34 IST — Voice input live verification (browser task)
+- Verified live on /citizen/report step 1 as citizen1: mic button
+  "🎙 Speak your complaint" + language picker (English / ಕನ್ನಡ / हिन्दी)
+  render above the description; helper text present. Clicking the mic in the
+  mic-less cloud browser showed the exact error "Microphone access was
+  blocked. Allow the microphone and try again." (the onerror not-allowed
+  path works); the description box stayed usable and no complaint was
+  submitted. Real speech-to-text still untested — needs a mic on the user's
+  laptop; tell him to try it once before the demo.
+
+## 2026-11-21 ~13:34 IST — Voice auto-fill: AI analyses the spoken complaint and fills the form
+- User order: for a voice user, the AI must analyse the voice and fill the
+  rest of the form — including the area — so the citizen only uploads a
+  photo and submits. Implemented:
+  - `fallback.ts`: `inferWardName()` — earliest-mentioned ward in the text,
+    English + Kannada script + transliteration, canonical DB names
+    (12 wards). 5 unit tests.
+  - `analyze.ts`: `AnalyzeInput.ward_id` is now optional. The model prompt
+    asks for an `area` field; the server resolves the ward from the supplied
+    id, else the model's area (name-matched against wards), else the keyword
+    matcher. Candidates are computed only for the resolved ward; with no
+    ward, departments stay empty and `ward_id/ward_name` come back null.
+    `AnalyzeResult` now carries `ward_id` + `ward_name`.
+  - `ReportForm.tsx`: on transcript commit the full spoken text is sent to
+    /api/complaints/analyze with no ward. Ward detected → the form jumps to
+    the photo step with a "AI filled the form from your voice" banner and
+    the review step is one tap away (photo optional, submit). Ward not
+    detected → jumps to the ward picker; picking it re-runs the analysis
+    and the department is suggested. The citizen can still change every
+    AI-filled field (area, category, department) before submitting.
+  - Verified: tsc 0 errors, vitest 48/48 (5 new ward tests), build passes.
+  - Not verified live end to end: the cloud browser has no mic, so the
+    spoken flow itself still needs a real-mic test on the user's laptop.

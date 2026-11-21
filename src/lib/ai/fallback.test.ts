@@ -2,7 +2,7 @@
 // (src/lib/ai/fallback.ts) — the deterministic classifier used when the
 // AI model is down, and the base the model output is checked against.
 import { describe, expect, it } from "vitest";
-import { detectLanguage, fallbackClassify } from "./fallback";
+import { detectLanguage, fallbackClassify, inferWardName } from "./fallback";
 
 describe("detectLanguage", () => {
   it("detects Kannada script as kn", () => {
@@ -68,5 +68,27 @@ describe("fallbackClassify", () => {
     expect(r.category).toBe("other");
     expect(r.confidence).toBe(0.3);
     expect(r.severity).toBe("medium");
+  });
+});
+
+describe("inferWardName", () => {
+  it("finds Bellandur in an English voice report", () => {
+    expect(
+      inferWardName("main water pipe burst near Bellandur, road flooded"),
+    ).toBe("Bellandur");
+  });
+  it("finds HSR Layout and returns the canonical DB name", () => {
+    expect(inferWardName("streetlight sparking in HSR Layout")).toBe("HSR Layout");
+  });
+  it("finds a Kannada ward name", () => {
+    expect(inferWardName("ಕೋರಮಂಗಲದಲ್ಲಿ ರಸ್ತೆ ಗುಂಡಿ")).toBe("Koramangala");
+  });
+  it("picks the first-mentioned area when two appear", () => {
+    expect(
+      inferWardName("near HSR, on the way to Koramangala the road is broken"),
+    ).toBe("HSR Layout");
+  });
+  it("returns null when no area is mentioned", () => {
+    expect(inferWardName("water pipe burst near my house")).toBeNull();
   });
 });

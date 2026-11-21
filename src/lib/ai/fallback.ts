@@ -118,3 +118,38 @@ export function fallbackClassify(description: string): FallbackResult {
     translated_text: text, // fallback cannot translate; the model does
   };
 }
+
+// Ward / area inference from free text (voice complaints, user order
+// 2026-11-21 13:34 IST). Canonical names match the DB `wards.name` seed
+// values exactly, so the server can map the returned name straight to a
+// ward row. English + Kannada script + transliterated spellings.
+const WARD_PATTERNS: [string, RegExp][] = [
+  ["Bellandur", /bellandur|ಬೆಳ್ಳಂದೂರು|bellanduru/i],
+  ["Whitefield", /whitefield|ವೈಟ್‌ಫೀಲ್ಡ್|white\s?field|itpl|kundalahalli/i],
+  ["Marathahalli", /marathahalli|ಮರಾಠಹಳ್ಳಿ/i],
+  ["Koramangala", /koramangala|ಕೋರಮಂಗಲ/i],
+  ["HSR Layout", /\bhsr\b|ಹೆಚ್‌ಎಸ್‌ಆರ್/i],
+  ["BTM Layout", /\bbtm\b/i],
+  ["Jayanagar", /jayanagar|ಜಯನಗರ/i],
+  ["Indiranagar", /indiranagar|ಇಂದಿರಾನಗರ/i],
+  ["Malleshwaram", /malleshwaram|ಮಲ್ಲೇಶ್ವರಂ/i],
+  ["Rajajinagar", /rajajinagar|ರಾಜಾಜಿನಗರ/i],
+  ["Yelahanka", /yelahanka|ಯಲಹಂಕ/i],
+  ["Hebbal", /hebbal|ಹೆಬ್ಬಾಳ/i],
+];
+
+/** Earliest-mentioned ward name in the text, or null. The first area named
+ *  is usually where the issue is ("near HSR, on the way to Koramangala"
+ *  picks HSR). */
+export function inferWardName(text: string): string | null {
+  let best: string | null = null;
+  let bestIdx = Infinity;
+  for (const [name, re] of WARD_PATTERNS) {
+    const m = text.match(new RegExp(re.source, re.flags));
+    if (m && m.index !== undefined && m.index < bestIdx) {
+      bestIdx = m.index;
+      best = name;
+    }
+  }
+  return best;
+}

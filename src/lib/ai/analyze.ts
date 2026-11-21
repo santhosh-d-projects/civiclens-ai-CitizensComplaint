@@ -7,12 +7,14 @@
 // rejects any department id not in that list.
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { fallbackClassify } from "@/lib/ai/fallback";
+import { fallbackClassify, inferWardName } from "@/lib/ai/fallback";
 import type { Severity } from "@/lib/database.types";
 
 export const AnalyzeInput = z.object({
   description: z.string().min(10).max(5000),
-  ward_id: z.number().int().positive(),
+  // Optional: voice complaints arrive without a ward — the AI infers the
+  // area from the spoken text (model `area` field, then keyword match).
+  ward_id: z.number().int().positive().optional(),
   language: z.string().optional(),
   photoUrls: z.array(z.string().url()).max(5).optional(),
 });
@@ -20,6 +22,8 @@ export const AnalyzeInput = z.object({
 const ModelOutput = z.object({
   language: z.string(),
   translated_text: z.string(),
+  // Area / locality / ward name mentioned in the complaint, or null.
+  area: z.string().nullable(),
   category: z.string(),
   severity: z.enum(["low", "medium", "high", "critical"]),
   confidence: z.number().min(0).max(1),
@@ -47,6 +51,11 @@ export interface AnalyzeResult {
   reason: string;
   language: string;
   translated_text: string;
+  // Ward the AI inferred from the text (voice flow) or the ward the caller
+  // supplied. Null when no area could be detected — the UI then asks the
+  // citizen to pick the ward before a department can be suggested.
+  ward_id: number | null;
+  ward_name: string | null;
   departments: DepartmentCandidate[];
   default_department_id: string | null;
   source: "model" | "fallback";
@@ -55,6 +64,7 @@ export interface AnalyzeResult {
 const SYSTEM_PROMPT = `You are a civic complaint triage assistant for a city municipal platform.
 Given a citizen complaint (any language), return ONLY JSON:
 {"language":"en|hi|kn|...","translated_text":"English translation or same text",
+ "area":"<locality or ward name mentioned in the complaint, or null>",
  "category":"<one of: roads, water_supply, sewerage, electricity, solid_waste, drainage_flood, parks_trees, public_safety, other>",
  "severity":"low|medium|high|critical",
  "confidence":0.0-1.0,
@@ -122,22 +132,18 @@ export async function analyzeComplaint(
   const started = Date.now();
   const admin = createAdminClient();
 
-  // Candidate departments: active + cover the ward. Category filtering
-  // happens after the category is known (model or fallback).
-  const { data: deptWards } = await admin
-    .from("department_wards")
-    .select("department_id")
-    .eq("ward_id", input.ward_id);
-  const wardDeptIds = (deptWards ?? []).map((d) => d.department_id);
-  const { data: activeDepts } = await admin
+  // All wards (for area → ward mapping) and all active departments (the
+  // model ranks them; the server filters the ranking to the resolved ward
+  // afterwards, so a model suggestion outside the ward is discarded).
+  const { data: wardRows } = await admin.from("wards").select("id,name");
+  const { data: allActive } = await admin
     .from("departments")
     .select("id,name,status")
-    .eq("status", "active")
-    .in("id", wardDeptIds.length ? wardDeptIds : ["00000000-0000-0000-0000-000000000000"]);
+    .eq("status", "active");
 
   // 1) Category + severity: model first, fallback on failure.
   const fb = fallbackClassify(input.description);
-  const model = await callGemini(input.description, (activeDepts ?? []).map((d) => ({ id: d.id, name: d.name })));
+  const model = await callGemini(input.description, (allActive ?? []).map((d) => ({ id: d.id, name: d.name })));
   const useModel = model !== null;
   const category = useModel ? model.category : fb.category;
   const severity: Severity = useModel ? model.severity : fb.severity;
@@ -145,6 +151,40 @@ export async function analyzeComplaint(
   const reason = useModel ? model.reason : fb.reason;
   const language = useModel ? model.language : fb.language;
   const translated = useModel ? model.translated_text : fb.translated_text;
+
+  // 1b) Resolve the ward: caller-supplied id wins; otherwise the model's
+  // `area`, then the keyword matcher. No area detected → ward stays null
+  // and no department can be suggested yet (the UI asks for the ward).
+  const matchWardByName = (name: string | null) => {
+    if (!name) return null;
+    const needle = name.trim().toLowerCase();
+    return (
+      (wardRows ?? []).find(
+        (w) =>
+          w.name.toLowerCase() === needle ||
+          w.name.toLowerCase().includes(needle) ||
+          needle.includes(w.name.toLowerCase()),
+      ) ?? null
+    );
+  };
+  const resolvedWard =
+    input.ward_id !== undefined
+      ? ((wardRows ?? []).find((w) => w.id === input.ward_id) ?? null)
+      : (matchWardByName(useModel ? model.area : null) ??
+        matchWardByName(inferWardName(input.description)));
+  const resolvedWardId = resolvedWard?.id ?? null;
+  const resolvedWardName = resolvedWard?.name ?? null;
+
+  // Candidate departments: active + cover the resolved ward.
+  let activeDepts: { id: string; name: string; status: string }[] = [];
+  if (resolvedWardId !== null) {
+    const { data: deptWards } = await admin
+      .from("department_wards")
+      .select("department_id")
+      .eq("ward_id", resolvedWardId);
+    const wardDeptIds = (deptWards ?? []).map((d) => d.department_id);
+    activeDepts = (allActive ?? []).filter((d) => wardDeptIds.includes(d.id));
+  }
 
   // 2) Candidates for the predicted category.
   const { data: catRow } = await admin
@@ -186,7 +226,7 @@ export async function analyzeComplaint(
       provider: process.env.AI_PROVIDER || "gemini",
       model: useModel ? process.env.AI_MODEL || "gemini-3.5-flash-lite" : "fallback",
       language,
-      ward_id: input.ward_id,
+      ward_id: resolvedWardId,
       category_slug: category,
       severity,
       confidence,
@@ -204,6 +244,8 @@ export async function analyzeComplaint(
     reason,
     language,
     translated_text: translated,
+    ward_id: resolvedWardId,
+    ward_name: resolvedWardName,
     departments: candidates,
     default_department_id,
     source: useModel ? "model" : "fallback",

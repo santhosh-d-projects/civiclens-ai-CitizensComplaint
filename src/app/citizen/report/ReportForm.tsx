@@ -185,9 +185,9 @@ function VoiceInput({
         </p>
       )}
       <p className="text-xs leading-5 text-slate-faint">
-        Your speech is transcribed into the description below — then the AI
-        reads it and suggests the category, severity and department. Works in
-        Chrome with microphone access.
+        Speak your complaint — the AI reads it and fills in the area,
+        category, severity and department. You just add a photo and submit.
+        Works in Chrome with microphone access.
       </p>
     </div>
   );
@@ -226,6 +226,12 @@ export default function ReportForm({
     existing_ticket_no?: string;
     existing_complaint_id?: string;
   } | null>(null);
+  // Voice flow (user order 2026-11-21 13:34 IST): the spoken complaint is
+  // analysed by the AI, which fills area/category/severity/department, so
+  // the citizen only adds a photo and submits. Set once a voice transcript
+  // has been analysed; voiceNote explains what the AI filled (or missed).
+  const [voiceFilled, setVoiceFilled] = useState(false);
+  const [voiceNote, setVoiceNote] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Clean up preview URLs on unmount.
@@ -338,6 +344,46 @@ export default function ReportForm({
       },
       { timeout: 10000 },
     );
+  }
+
+  /* ---------- Voice flow: analyse the spoken complaint and fill the form ---------- */
+  async function runVoiceAnalysis(text: string) {
+    setAnalyzing(true);
+    setAnalyzeError("");
+    setAnalysis(null);
+    try {
+      const res = await fetch("/api/complaints/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: text }),
+      });
+      const data = (await res.json()) as AnalyzeResult | { error: { message: string } };
+      if (!res.ok || "error" in data) {
+        throw new Error("error" in data ? data.error.message : "Analysis failed.");
+      }
+      setAnalysis(data);
+      setCategorySlug(data.category);
+      setDepartmentId(data.default_department_id ?? "");
+      setVoiceFilled(true);
+      if (data.ward_id) {
+        setWardId(data.ward_id);
+        setVoiceNote(
+          `AI filled the form from your voice — area detected: ${data.ward_name}. Add a photo if you have one, then review & submit.`,
+        );
+        setStep(2);
+      } else {
+        setVoiceNote(
+          "AI filled the category and severity from your voice, but I couldn't catch the area — pick your ward below and the department will be suggested.",
+        );
+        setStep(3);
+      }
+    } catch (e) {
+      setAnalyzeError(e instanceof Error ? e.message : "Analysis failed. Please try again.");
+      // Stay on step 1: the transcript is in the description, so the
+      // citizen can continue the normal typed flow.
+    } finally {
+      setAnalyzing(false);
+    }
   }
 
   /* ---------- Step 4: AI analysis ---------- */
@@ -509,11 +555,13 @@ export default function ReportForm({
             error={description && description.trim().length < 10 ? "Please describe the issue in at least 10 characters." : undefined}
           >
             <VoiceInput
-              onTranscript={(text) =>
-                setDescription((prev) =>
-                  prev.trim() ? `${prev.trim()} ${text}` : text,
-                )
-              }
+              onTranscript={(text) => {
+                const next = description.trim()
+                  ? `${description.trim()} ${text}`
+                  : text;
+                setDescription(next);
+                void runVoiceAnalysis(next);
+              }}
             />
             <textarea
               value={description}
@@ -540,6 +588,15 @@ export default function ReportForm({
       {/* Step 2 — Photos */}
       {step === 2 && (
         <div className="mt-7 space-y-5">
+          {voiceFilled && voiceNote && (
+            <p
+              role="status"
+              className="rounded-2xl border border-teal/30 bg-low-bg p-4 text-sm leading-6 font-medium text-low"
+              data-testid="report-voice-filled"
+            >
+              🎙 {voiceNote}
+            </p>
+          )}
           <p className="text-sm leading-6 text-slate-muted">
             Photos help the department find and fix the issue. Optional — up to{" "}
             {MAX_PHOTOS} images, JPG / PNG / WebP, each up to 10 MB.
@@ -607,8 +664,11 @@ export default function ReportForm({
             <Button variant="secondary" onClick={() => setStep(1)} data-testid="report-back-2">
               Back
             </Button>
-            <Button onClick={() => setStep(3)} data-testid="report-next-2">
-              Continue to location
+            <Button
+              onClick={() => setStep(voiceFilled && wardId !== "" ? 4 : 3)}
+              data-testid="report-next-2"
+            >
+              {voiceFilled && wardId !== "" ? "Continue to review" : "Continue to location"}
             </Button>
           </div>
         </div>
@@ -617,6 +677,15 @@ export default function ReportForm({
       {/* Step 3 — Ward & location */}
       {step === 3 && (
         <div className="mt-7 space-y-5">
+          {voiceFilled && wardId === "" && voiceNote && (
+            <p
+              role="status"
+              className="rounded-2xl border border-high/30 bg-high-bg p-4 text-sm leading-6 font-medium text-high"
+              data-testid="report-voice-filled"
+            >
+              🎙 {voiceNote}
+            </p>
+          )}
           <Field label="Ward" hint="Pick the ward where the issue is.">
             <select
               value={wardId}
@@ -805,7 +874,11 @@ export default function ReportForm({
             </div>
           )}
           <div className="flex justify-between">
-            <Button variant="secondary" onClick={() => setStep(3)} data-testid="report-back-4">
+            <Button
+              variant="secondary"
+              onClick={() => setStep(voiceFilled && wardId !== "" ? 2 : 3)}
+              data-testid="report-back-4"
+            >
               Back
             </Button>
             <Button
@@ -822,6 +895,15 @@ export default function ReportForm({
       {/* Step 5 — Review */}
       {step === 5 && analysis && (
         <div className="mt-7 space-y-5">
+          {voiceFilled && (
+            <p
+              role="status"
+              className="rounded-2xl border border-teal/30 bg-low-bg p-4 text-sm leading-6 font-medium text-low"
+              data-testid="report-voice-review"
+            >
+              🎙 Filled from your voice — check the details below, then submit.
+            </p>
+          )}
           <GlassCard className="p-1 sm:p-2">
             <dl className="divide-y divide-line">
               {[
