@@ -80,3 +80,11 @@ in-progress with note. Issues found and fixed in the same session:
 - The browser re-test (task 85becc2a) ran against the indigo build; its
   functional findings (duplicate block, resolution flow) still apply, but
   the visual check must be redone on the green build.
+
+## 2026-11-21 ~13:10 IST — Remaining minor issues (from re-test 13:02–13:09)
+- Officer ticket header/badge/timeline do not refresh in place after Save —
+  the new status/photo appear after a reload or ~10s. Toast confirms the save.
+- Two first-click navigations did not fire (officer dashboard ticket link,
+  "My complaints" link on the report page); direct URL navigation worked.
+- AI analysis takes ~5–10s behind the spinner (Gemini cold call).
+- Feedback 5-star pre-selection: FIXED in dpl_64s5 (no default rating now).

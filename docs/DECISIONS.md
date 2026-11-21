@@ -167,3 +167,16 @@
   files named TeamName_DocumentName. The Guide contains NO submission-form
   URL (strings found zero http links) — the form link is still outstanding
   and must come from the coordinators.
+
+## 2026-11-21 ~13:10 IST — Stale-build lesson (dpl_86UM) + feedback fix
+- dpl_86UM went READY but served the OLD indigo build: the upload script
+  crashed (E2BIG on the jpg) BEFORE saving /tmp/vercel-file-refs.json, so
+  the 22 re-uploaded text files kept their OLD SHAs in the refs file and
+  create_deployment rebuilt the old code. Lesson: ALWAYS verify the saved
+  refs' SHAs match the actual files (sha1sum) before create_deployment.
+- Fixed: re-uploaded all 23 changed files, verified refs SHAs byte-for-byte,
+  redeployed as dpl_64s5 — production alias confirmed green (vidhana in
+  HTML, emerald shadows, 0 indigo shadows).
+- Feedback bug from the re-test: FeedbackForm defaulted rating to 5 stars
+  (useState(5)). Fixed to 0 (no pre-selection) with submit disabled until a
+  rating is picked; included in dpl_64s5.

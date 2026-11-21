@@ -7,13 +7,17 @@ import { Button, Field, inputClass } from "@/components/ui";
 
 export function FeedbackForm({ complaintId }: { complaintId: string }) {
   const router = useRouter();
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState(0); // 0 = no rating chosen yet (never pre-select 5)
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
   async function submit() {
+    if (rating === 0) {
+      setError("Please pick a rating first.");
+      return;
+    }
     setBusy(true);
     setError("");
     const res = await fetch(`/api/complaints/${complaintId}/feedback`, {
@@ -75,7 +79,7 @@ export function FeedbackForm({ complaintId }: { complaintId: string }) {
       )}
       <Button
         onClick={() => void submit()}
-        disabled={busy}
+        disabled={busy || rating === 0}
         data-testid="feedback-submit"
       >
         {busy ? "Saving…" : "Submit feedback"}
